@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dev Hub">
+<meta name="theme-color" content="#1B4F72">
+<title>Regional Leader Dev Hub</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --navy: #1B4F72;
+  --navy-mid: #2E86C1;
+  --navy-light: #D6EAF8;
+  --green: #3B6D11;
+  --green-light: #EAF3DE;
+  --amber: #854F0B;
+  --amber-light: #FAEEDA;
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --pink: #993556;
+  --pink-light: #FBEAF0;
+  --gray: #5F5E5A;
+  --gray-light: #F1EFE8;
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #1a1a1a;
+  --text2: #666;
+  --text3: #999;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.06);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111318;
+    --surface: #1e2026;
+    --text: #f0f0f0;
+    --text2: #aaa;
+    --text3: #666;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.06);
+    --navy-light: #0d2a3e;
+    --green-light: #1a3008;
+    --amber-light: #2e1a02;
+    --purple-light: #1e1a44;
+    --coral-light: #2e1108;
+    --teal-light: #052e24;
+    --pink-light: #2e1020;
+    --gray-light: #1e1d1a;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Layout */
+#app { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+#topbar {
+  background: var(--navy);
+  color: #fff;
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#topbar .title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+#topbar .subtitle { font-size: 12px; opacity: 0.7; margin-top: 1px; }
+#topbar .streak-badge {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--safe-bottom) + 72px);
+}
+
+#navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  padding-bottom: var(--safe-bottom);
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 10px;
+  gap: 3px;
+  transition: color .15s;
+}
+.nav-item i { font-size: 22px; }
+.nav-item.active { color: var(--navy); }
+@media (prefers-color-scheme: dark) { .nav-item.active { color: var(--navy-mid); } }
+
+/* Views */
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+/* Today cards */
+.today-hero {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.track-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.lesson-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.25; margin-bottom: 6px; }
+.lesson-meta { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+
+.section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 18px 0 8px;
+}
+.body-text { font-size: 15px; line-height: 1.7; color: var(--text); }
+.bullet-list { padding-left: 18px; }
+.bullet-list li { font-size: 14px; line-height: 1.75; color: var(--text); margin-bottom: 2px; }
+
+.ex-box {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+  border: 0.5px solid var(--border);
+}
+.scenario-box {
+  background: var(--bg);
+  border-left: 3px solid var(--navy-mid);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+}
+.reflect-box {
+  border-left: 3px solid var(--border);
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+  color: var(--text2);
+  font-style: italic;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--navy);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: opacity .15s;
+}
+.btn-primary:active { opacity: 0.85; }
+.btn-primary.done-btn { background: var(--green); }
+.btn-secondary {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  transition: background .15s;
+}
+.btn-secondary:active { background: var(--bg); }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border2);
+  padding: 14px 10px;
+  text-align: center;
+}
+.stat-val { font-size: 26px; font-weight: 700; color: var(--text); }
+.stat-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* Curriculum list */
+.cur-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.cur-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.cur-day-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  min-width: 30px;
+}
+.cur-title { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.3; }
+.cur-body { display: none; padding: 0 16px 16px; border-top: 0.5px solid var(--border2); }
+.cur-body.open { display: block; }
+
+/* Track progress */
+.track-item { margin-bottom: 14px; }
+.track-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.track-item-name { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.track-item-count { font-size: 12px; color: var(--text2); }
+.pbar-bg { background: var(--border2); border-radius: 20px; height: 5px; overflow: hidden; }
+.pbar-fill { height: 5px; border-radius: 20px; transition: width .5s; }
+
+/* Week dots */
+.week-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin: 12px 0 20px; }
+.week-cell { text-align: center; }
+.week-lbl { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.week-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--text2);
+}
+.week-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+.week-dot.today { border-color: var(--navy); color: var(--navy); font-weight: 700; }
+@media (prefers-color-scheme: dark) { .week-dot.today { border-color: var(--navy-mid); color: var(--navy-mid); } }
+
+/* Glossary */
+.g-search {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.g-search::placeholder { color: var(--text3); }
+.g-search:focus { outline: none; border-color: var(--navy-mid); }
+.g-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border2);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.g-term { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.g-def { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* Settings */
+.setting-row {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.setting-item {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--border2);
+}
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 14px; font-weight: 500; }
+.setting-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.toggle {
+  width: 44px; height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+  flex-shrink: 0;
+  border: none;
+}
+.toggle.on { background: var(--green); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(18px); }
+.time-select {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+.install-banner {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  display: none;
+}
+.install-banner.show { display: block; }
+
+/* Filter chips */
+.filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 14px; scrollbar-width: none; }
+.filter-row::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.chip.active { color: var(--text); border-color: var(--text); background: var(--bg); }
+
+/* Completed overlay */
+.done-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 8px;
+  gap: 6px;
+}
+.done-state i { font-size: 36px; color: var(--green); }
+.done-state p { font-size: 14px; color: var(--text2); text-align: center; }
+
+/* Section divider */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Deep dive */
+.deep-dive-btn {
+  width:100%;padding:11px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--navy-mid);background:transparent;
+  color:var(--navy-mid);font-size:13px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:6px;margin-top:14px;transition:background .15s;
+}
+@media (prefers-color-scheme:dark){.deep-dive-btn{color:#5aafdf;border-color:#5aafdf;}}
+.deep-dive-btn:active{background:var(--navy-light);}
+.deep-dive-panel{display:none;margin-top:12px;border-top:0.5px solid var(--border2);padding-top:12px;}
+.deep-dive-panel.open{display:block;}
+.excel-block{background:#f0f7f0;border-radius:var(--radius-sm);padding:14px;margin:10px 0;border-left:3px solid var(--teal);}
+@media (prefers-color-scheme:dark){.excel-block{background:#0a2016;}}
+.excel-block .excel-title{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.formula{font-family:'Courier New',monospace;background:var(--surface);border:0.5px solid var(--border);border-radius:4px;padding:7px 10px;font-size:13px;color:#0F6E56;margin:6px 0;display:block;word-break:break-all;}
+@media (prefers-color-scheme:dark){.formula{color:#4dc99a;}}
+.formula-label{font-size:12px;color:var(--text2);margin-bottom:2px;}
+.formula-note{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;}
+/* Answer key */
+.answer-key-btn{
+  width:100%;padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px dashed var(--border);background:transparent;
+  color:var(--text2);font-size:13px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:6px;margin-top:10px;
+}
+.answer-key-btn:active{background:var(--bg);}
+.answer-key-panel{display:none;background:var(--green-light);border-radius:var(--radius-sm);padding:14px;margin-top:8px;border-left:3px solid var(--green);}
+.answer-key-panel.open{display:block;}
+.answer-key-panel .ak-title{font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.answer-key-panel .ak-line{font-size:14px;color:var(--text);line-height:1.75;padding:2px 0;}
+.answer-key-panel .ak-line strong{color:var(--green);font-weight:700;}
+/* Glossary formula */
+.g-formula{font-family:'Courier New',monospace;background:var(--bg);border:0.5px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;color:#0F6E56;margin-top:5px;display:block;word-break:break-all;}
+@media (prefers-color-scheme:dark){.g-formula{color:#4dc99a;}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div>
+      <div class="title">Dev Hub</div>
+      <div class="subtitle">Regional ops → business stewardship</div>
+    </div>
+    <div class="streak-badge" id="streak-badge"><i class="ti ti-flame"></i> <span id="streak-num">0</span> day streak</div>
+  </div>
+
+  <div id="content">
+    <div class="view active" id="v-today"></div>
+    <div class="view" id="v-curriculum"></div>
+    <div class="view" id="v-progress"></div>
+    <div class="view" id="v-glossary"></div>
+    <div class="view" id="v-settings"></div>
+  </div>
+
+  <nav id="navbar">
+    <button class="nav-item active" onclick="nav('today',this)">
+      <i class="ti ti-player-play"></i><span>Today</span>
+    </button>
+    <button class="nav-item" onclick="nav('curriculum',this)">
+      <i class="ti ti-layout-list"></i><span>Lessons</span>
+    </button>
+    <button class="nav-item" onclick="nav('progress',this)">
+      <i class="ti ti-chart-bar"></i><span>Progress</span>
+    </button>
+    <button class="nav-item" onclick="nav('glossary',this)">
+      <i class="ti ti-book"></i><span>Glossary</span>
+    </button>
+    <button class="nav-item" onclick="nav('settings',this)">
+      <i class="ti ti-settings"></i><span>Settings</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+const TRACKS=[
+  {id:'fin',name:'Financial literacy',color:'#185FA5',bg:'var(--navy-light)',icon:'ti-currency-dollar'},
+  {id:'ops',name:'Operations',color:'#3B6D11',bg:'var(--green-light)',icon:'ti-settings'},
+  {id:'lead',name:'Leadership',color:'#534AB7',bg:'var(--purple-light)',icon:'ti-users'},
+  {id:'fc',name:'Forecasting',color:'#854F0B',bg:'var(--amber-light)',icon:'ti-trending-up'},
+  {id:'cost',name:'Cost management',color:'#993C1D',bg:'var(--coral-light)',icon:'ti-cut'},
+  {id:'xl',name:'Excel',color:'#0F6E56',bg:'var(--teal-light)',icon:'ti-table'},
+  {id:'tab',name:'Tableau',color:'#993556',bg:'var(--pink-light)',icon:'ti-chart-dots'},
+  {id:'bridge',name:'Ops-to-finance',color:'#5F5E5A',bg:'var(--gray-light)',icon:'ti-arrows-exchange'},
+];
+
+const L=[
+  {day:1,track:'fin',dur:'40 min',title:'Reading a P&L as a regional manager',
+   concept:'A P&L is the financial story of your region. Revenue at the top, costs subtracted line by line, profit at the bottom. As a regional ops manager with part-time hourly staff, you directly influence three lines: revenue (service delivery), labor (your biggest variable cost), and gross margin.\n\nMost operators see the P&L after the fact. Your goal is to predict what it will say before finance sends it.',
+   points:['Revenue: total billed for services delivered','COGS: direct delivery costs — primarily hourly labor','Gross profit: Revenue − COGS. Your operational health number','Operating expenses: management overhead, software, equipment','EBITDA: core profitability before accounting adjustments','Net income: the bottom line after everything'],
+   exercise:{type:'Practice problem',text:'Your region billed $142,000 last month. Liaison labor: $68,000. Other direct costs: $11,500. Admin/overhead: $24,000.\n\nCalculate: (1) Gross Profit (2) Gross Margin % (3) EBITDA (4) If you reduced labor 5% through better scheduling, what would gross margin become?',
+     answer:[
+       '(1) Gross Profit = Revenue − COGS = $142,000 − ($68,000 + $11,500) = $142,000 − $79,500 = <strong>$62,500</strong>',
+       '(2) Gross Margin % = $62,500 ÷ $142,000 × 100 = <strong>44.0%</strong>',
+       '(3) EBITDA = Gross Profit − OpEx = $62,500 − $24,000 = <strong>$38,500</strong>',
+       '(4) Labor at 5% reduction: $68,000 × 0.95 = $64,600. New COGS: $64,600 + $11,500 = $76,100. New Gross Profit: $65,900. New Gross Margin: $65,900 ÷ $142,000 = <strong>46.4%</strong> — a 2.4 point improvement'
+     ]},
+   reflect:'Which line on your P&L do you feel least confident explaining to your VP? That is your starting point.',
+   deepDive:{
+     text:'A full P&L has layers most operators never see. Understanding each line lets you defend your numbers and spot problems before leadership does.\n\n<strong>Revenue recognition:</strong> Revenue is recorded when the service is delivered — not when cash is received. If you delivered 400 packages in March but invoicing is delayed, the revenue still hits March.\n\n<strong>COGS vs. OpEx:</strong> This distinction is critical. COGS are costs that only exist because you delivered the service (liaison hours, delivery supplies). OpEx are costs that exist whether you deliver or not (your salary, office software, management overhead). Misclassifying costs distorts your gross margin.\n\n<strong>Why gross margin matters more than revenue:</strong> A region doing $200K in revenue with 35% gross margin generates $70K to cover overhead. A region doing $150K with 52% gross margin generates $78K. The smaller region is more valuable. Revenue is vanity — margin is reality.\n\n<strong>EBITDA as a proxy for cash:</strong> EBITDA strips out accounting entries (depreciation, amortization) that don\'t represent real cash leaving the business. It\'s the closest P&L line to "how much cash did this operation actually generate?"',
+     excel:[
+       {title:'Build a P&L in Excel',steps:[
+         {label:'Set up your structure in column A',formula:'A1: Revenue\nA2: COGS - Labor\nA3: COGS - Other Direct\nA4: Gross Profit\nA5: Operating Expenses\nA6: EBITDA'},
+         {label:'Enter your actuals in column B (numbers only)',formula:'B1: 142000\nB2: 68000\nB3: 11500\nB5: 24000'},
+         {label:'Calculate Gross Profit',formula:'B4: =B1-B2-B3'},
+         {label:'Calculate EBITDA',formula:'B6: =B4-B5'},
+         {label:'Add Gross Margin % in column C',formula:'C4: =B4/B1\n(Format C4 as Percentage)'},
+         {label:'Add a budget column D and variance column E',formula:'E1: =B1-D1\n(Copy down for each row)\n(Green = favorable, Red = unfavorable)'}
+       ],note:'Pro tip: Name your ranges. Select B1, press Ctrl+Shift+F3, check "Left column" — now you can write =Revenue-COGS_Labor instead of =B1-B2. Much easier to audit.'}
+     ]
+   },
+   ask:'Walk me through a P&L using real liaison service numbers and show me where I have the most control as a regional manager'},
+
+  {day:2,track:'ops',dur:'35 min',title:'Your operation as a system',
+   concept:'Operations management starts with seeing your work as a system — not a series of tasks. Every system has inputs (what goes in), a process (how work happens), and outputs (what the client experiences).\n\nAs a regional manager, your job is to design and improve the system — not just run inside it.',
+   points:['Inputs: liaison hours, packages received, building access, equipment','Process: arrival scan → PDV → delivery window → door photo','Outputs: on-time rate, accuracy, resident satisfaction','Waste: wrong-door deliveries, missed windows, idle time','Leverage point: the step where fixing something has the biggest downstream impact'],
+   scenario:'Three wrong-door deliveries in one week. Using systems thinking — where did your process break down? Was it an input problem, a process problem, or an output measurement problem?',
+   reflect:'Where in your current process does one breakdown cause the most damage downstream? That is your highest-leverage improvement opportunity.',
+   deepDive:{
+     text:'<strong>The 5 types of waste in operations (from Lean):</strong>\n\n<strong>1. Defects</strong> — wrong-door deliveries, incorrect scans. Cost: recovery labor + relationship damage.\n<strong>2. Overproduction</strong> — over-staffing a light volume day. Cost: direct labor spend with no output.\n<strong>3. Waiting</strong> — liaisons idle between windows. Cost: paid hours producing nothing.\n<strong>4. Motion</strong> — inefficient cart routes, backtracking between floors. Cost: time and energy.\n<strong>5. Over-processing</strong> — double-checking steps that a better process would make unnecessary.\n\n<strong>The 5 Whys technique:</strong> When a problem occurs, ask "why" five times to find the root cause. Wrong-door delivery → Why? Liaison misread unit. Why? Label was partially obscured. Why? Package was wet from lobby. Why? No protocol for damaged labels. Why? It was never documented. Root cause: missing procedure, not human error.\n\n<strong>Process mapping:</strong> Draw every step your operation takes from package arrival to delivery confirmation. For each step, note: who does it, how long it takes, where it most often fails. This map becomes your improvement roadmap.',
+     excel:[
+       {title:'Track process failures by step in Excel',steps:[
+         {label:'Create a failure log with these columns',formula:'A: Date\nB: Liaison\nC: Failure type (dropdown)\nD: Process step where it occurred\nE: Root cause\nF: Resolution time (minutes)'},
+         {label:'Add a data validation dropdown for Failure Type',formula:'Select column C → Data → Data Validation\nAllow: List\nSource: Wrong door,Missed window,Scan error,Other'},
+         {label:'Count failures by type with COUNTIF',formula:'=COUNTIF(C:C,"Wrong door")\n=COUNTIF(C:C,"Missed window")'},
+         {label:'Average resolution time by failure type',formula:'=AVERAGEIF(C:C,"Wrong door",F:F)'},
+         {label:'Pivot table: failures by process step',formula:'Insert → PivotTable\nRows: Process step (col D)\nValues: Count of Date\nThis shows you exactly where your system breaks most often.'}
+       ],note:'Run this for 4 weeks. The step with the most failures is your highest-leverage improvement target.'}
+     ]
+   },
+   ask:'Help me apply systems thinking to diagnose a recurring delivery problem in my operation'},
+
+  {day:3,track:'lead',dur:'35 min',title:'Managing part-time hourly staff — what actually works',
+   concept:'Part-time hourly workers operate in a fundamentally different psychological contract than salaried employees. Their commitment to quality often reflects how seen, respected, and fairly treated they feel day to day.\n\nThe best regional managers of hourly teams create clarity (people know exactly what good looks like), consistency (the rules are the same every day), and real consequence (feedback actually happens).',
+   points:['Clarity: a liaison who knows exactly what is expected performs better than one who guesses','Consistency: inconsistent enforcement destroys trust faster than anything else','Recognition: naming good work costs you nothing and builds loyalty','Accountability: direct, early feedback is kinder than letting issues build','Development: showing someone a path forward increases retention and effort'],
+   reflect:'Think of your highest-performing liaison. What specifically makes them good? Now your lowest. Is the gap skill, will, clarity, or circumstance?',
+   deepDive:{
+     text:'<strong>The 4 drivers of hourly worker performance:</strong>\n\n<strong>1. Role clarity</strong> — Does every liaison know exactly what a perfect shift looks like, measured in specific behaviors? Not "do a good job" but "zero wrong-door deliveries, photo taken at every door, cart returned within 10 minutes of window close."\n\n<strong>2. Immediate feedback loops</strong> — Hourly workers respond to feedback that\'s fast and specific. "Your scan accuracy was 100% today" lands better than a monthly review. Build a habit of one piece of specific feedback per shift per person.\n\n<strong>3. Perceived fairness</strong> — Part-time staff are acutely aware of inconsistency. If one liaison gets corrected for something another gets away with, you lose credibility with both. Consistency isn\'t just good management — it\'s the foundation of trust.\n\n<strong>4. Path visibility</strong> — Even if promotion isn\'t available, people work harder when they see themselves growing. Giving a high-performer a special responsibility (training a new hire, owning a building) costs nothing and dramatically increases engagement.\n\n<strong>The SBI feedback model:</strong> Situation ("On Friday during Window 2"), Behavior ("you delivered to 14B without checking the door number"), Impact ("it created a 45-minute recovery and a resident complaint"). This format removes defensiveness and makes the issue concrete.',
+     excel:[
+       {title:'Liaison performance tracker',steps:[
+         {label:'Weekly scorecard structure',formula:'A: Week\nB: Liaison\nC: Shifts worked\nD: On-time delivery %\nE: Error count\nF: Scan accuracy %\nG: Manager rating (1-5)'},
+         {label:'Calculate on-time % automatically',formula:'=D2/C2  (format as %)\nOr if tracking raw numbers:\n=COUNTIF(range,"On Time")/COUNT(range)'},
+         {label:'Conditional formatting — flag performance',formula:'Select E column (errors)\nHome → Conditional Formatting → Highlight Cell Rules\n>0 = Yellow, >2 = Red\nThis makes problems visible at a glance.'},
+         {label:'Trend line: is a liaison improving?',formula:'Select their weekly scores → Insert → Line Chart\nA rising line = development working\nA flat/falling line = intervention needed'}
+       ],note:'Share this tracker with your liaisons monthly. Seeing their own numbers creates self-accountability and reduces the emotional weight of feedback conversations.'}
+     ]
+   },
+   ask:'Help me build a weekly rhythm for developing and holding accountable a team of part-time hourly liaisons'},
+
+  {day:4,track:'fin',dur:'45 min',title:'Variance analysis — explain your numbers before you\'re asked',
+   concept:'Variance is the gap between what you planned and what happened. Finance teams analyze it every month. The regional managers who get promoted are the ones who explain their own variance before anyone asks — and connect it to specific operational decisions.',
+   points:['Favorable: actuals better than budget','Unfavorable: actuals worse than budget','Volume variance: more/fewer hours than planned','Rate variance: hourly rate different than budgeted','How to frame it: "We were $4,200 unfavorable on labor — $3,100 from Saturday coverage, $1,100 from one overtime activation"'],
+   exercise:{type:'Variance drill',text:'Budget: 800 hours @ $17.50 = $14,000\nActual: 860 hours @ $18.20 = $15,652\nTotal variance: $1,652 unfavorable\n\n(1) Calculate the volume variance (extra hours at budgeted rate)\n(2) Calculate the rate variance (all hours at the rate difference)\n(3) Do they add up to $1,652?\n(4) Write the one-sentence VP explanation',
+     answer:[
+       '(1) Volume variance = (860 − 800) × $17.50 = 60 × $17.50 = <strong>$1,050 unfavorable</strong>',
+       '(2) Rate variance = 860 × ($18.20 − $17.50) = 860 × $0.70 = <strong>$602 unfavorable</strong>',
+       '(3) Check: $1,050 + $602 = <strong>$1,652 ✓</strong> — they reconcile perfectly',
+       '(4) VP sentence: "Labor was $1,652 unfavorable — $1,050 from 60 additional hours of unplanned Saturday coverage, and $602 from a rate increase on two liaisons who hit their 6-month review."'
+     ]},
+   deepDive:{
+     text:'<strong>Why variance splits matter:</strong> A $1,652 labor overrun that came entirely from volume (you delivered more than planned) is actually good news — it means revenue likely went up too. A $1,652 overrun that came entirely from rate (you paid more per hour than planned) is a cost control problem. Same number, completely different stories.\n\n<strong>Mix variance</strong> is a third type you\'ll encounter: it occurs when you delivered a different blend of services than planned. Example: you budgeted 60% standard deliveries, 40% premium-tier, but ran 80% standard. Even if volume and rate held, revenue can be lower than plan.\n\n<strong>The variance waterfall:</strong> Advanced finance teams present variance as a waterfall chart — starting from budget, each bar shows a component adding or subtracting to get to actuals. This is a powerful visual for leadership presentations.\n\n<strong>Proactive variance framing:</strong> Never present variance without an explanation AND a forward-looking statement. "Labor was $1,652 unfavorable this week due to Saturday coverage. Next week we have scheduled volume of X — I expect labor to come in at Y."',
+     excel:[
+       {title:'Variance analysis template',steps:[
+         {label:'Set up the core table',formula:'A: Category\nB: Budget\nC: Actual\nD: Variance $\nE: Variance %\nF: Explanation'},
+         {label:'Calculate dollar variance',formula:'D2: =C2-B2\n(Negative = favorable for costs\n Positive = unfavorable for costs)\n(Opposite for revenue)'},
+         {label:'Calculate percent variance',formula:'E2: =(C2-B2)/B2\n(Format as percentage)\nThis tells you the magnitude — a $50 miss on a $100 budget (50%) matters more than on a $10,000 budget (0.5%)'},
+         {label:'Volume variance formula',formula:'=( Actual_Hours - Budget_Hours ) * Budget_Rate\nExample: =(860-800)*17.50  →  $1,050'},
+         {label:'Rate variance formula',formula:'=Actual_Hours * (Actual_Rate - Budget_Rate)\nExample: =860*(18.20-17.50)  →  $602'},
+         {label:'Conditional formatting on variance column',formula:'Select column D\nNew Rule → Format cells where value > 0 → Red fill\nNew Rule → Format cells where value < 0 → Green fill\n(For cost lines — reverse for revenue)'}
+       ],note:'Add a "Notes" column F and fill it every week. After 3 months you will have a running log of every variance and its cause — invaluable for annual reviews and budget conversations.'}
+     ]
+   },
+   ask:'Help me practice explaining labor variance to leadership in plain language'},
+
+  {day:5,track:'xl',dur:'55 min',title:'Excel for regional ops — the 5 functions you actually need',
+   concept:'Before dashboards, before Tableau — Excel is where operational decisions get made and defended. You do not need to be an expert. You need to be dangerous with 5 functions that cover 80% of real regional ops work.',
+   points:['SUMIF: total hours by liaison','XLOOKUP: pull a liaison rate from a rate table by name','Pivot table: summarize 200 rows of delivery data in seconds','Conditional formatting: automatically flag error rates above threshold','IFERROR: stop formulas breaking when data is missing'],
+   exercise:{type:'Build it',text:'Open Excel or Google Sheets. Create columns: Date | Liaison | Hours | Packages | Errors. Enter 15 rows of sample data.\n\n(1) SUMIF to total hours per liaison\n(2) XLOOKUP to pull each liaison\'s hourly rate from a separate rate table\n(3) Pivot table: packages and errors by liaison\n(4) Conditional formatting: flag any row where Errors > 1 in red'},
+   deepDive:{
+     text:'<strong>Why these 5 functions and not others:</strong>\n\nMost Excel tutorials teach you every function. This wastes time. These 5 are chosen because they solve the exact problems a regional ops manager faces daily — summarizing by category, looking up reference data, flagging anomalies, and protecting against broken data.\n\n<strong>SUMIF vs. SUMIFS:</strong> SUMIF handles one condition. SUMIFS handles multiple. Example: total hours for L2 on Fridays only = SUMIFS. Use SUMIFS when you need to filter on more than one column simultaneously.\n\n<strong>XLOOKUP vs. VLOOKUP:</strong> VLOOKUP only looks right (the return column must be to the right of the lookup column). XLOOKUP looks in any direction and handles missing values gracefully. Always use XLOOKUP if your Excel version supports it (2019+).\n\n<strong>Pivot tables vs. formulas:</strong> Pivot tables are faster to build and easier to update when data changes. Formulas are more flexible and can be embedded in reports. Use pivot tables to explore data, formulas to build permanent reporting structures.',
+     excel:[
+       {title:'SUMIF — Total hours by liaison',steps:[
+         {label:'Basic syntax',formula:'=SUMIF(range, criteria, sum_range)'},
+         {label:'Total hours for L1 (assuming Liaison in col B, Hours in col C)',formula:'=SUMIF(B:B,"L1",C:C)'},
+         {label:'Dynamic — reference a cell instead of hardcoding',formula:'=SUMIF(B:B,F2,C:C)\n(Put "L1" in F2, "L2" in F3, etc. — formula updates automatically)'},
+         {label:'SUMIFS — hours for L2 on Fridays only (Day in col A)',formula:'=SUMIFS(C:C,B:B,"L2",A:A,"Friday")'}
+       ],note:'Always use full column references (B:B not B2:B100) so the formula auto-includes new rows.'},
+       {title:'XLOOKUP — Pull liaison pay rate',steps:[
+         {label:'Set up a rate table on a separate sheet (Sheet2)',formula:'Sheet2 A1: Liaison | B1: Rate\nA2: L1 | B2: 19.50\nA3: L2 | B3: 17.00\nA4: L3 | B4: 18.25'},
+         {label:'Basic XLOOKUP syntax',formula:'=XLOOKUP(lookup_value, lookup_array, return_array)'},
+         {label:'Pull L2\'s rate from the table (B2 contains "L2")',formula:'=XLOOKUP(B2,Sheet2!A:A,Sheet2!B:B)'},
+         {label:'With error handling if liaison not found',formula:'=XLOOKUP(B2,Sheet2!A:A,Sheet2!B:B,"Rate not found")'}
+       ],note:'This eliminates manual rate entry. Update the rate table once — every formula that references it updates automatically.'},
+       {title:'IFERROR — Protect against broken formulas',steps:[
+         {label:'Without IFERROR — shows #N/A if lookup fails',formula:'=XLOOKUP(B2,Sheet2!A:A,Sheet2!B:B)'},
+         {label:'With IFERROR — shows 0 or a message instead',formula:'=IFERROR(XLOOKUP(B2,Sheet2!A:A,Sheet2!B:B),0)'},
+         {label:'Use 0 for numeric formulas, empty string for text',formula:'Numeric: =IFERROR(formula, 0)\nText: =IFERROR(formula, "")'}
+       ],note:'Wrap every XLOOKUP and division formula in IFERROR. It keeps your tracker clean and prevents one missing value from cascading errors.'}
+     ]
+   },
+   ask:'Show me step-by-step how to build a liaison performance tracker in Excel from scratch'},
+
+  {day:6,track:'fc',dur:'40 min',title:'Forecasting volume — your most practical planning tool',
+   concept:'Forecasting is not about being exactly right. It is about being directionally right in time to staff correctly, control costs, and hit your margin. The number you most need to forecast is weekly delivery volume — because volume drives staffing, which drives your biggest cost.',
+   points:['Simple average: add last 4 weeks of volume, divide by 4 — your baseline','Trend check: is volume growing, shrinking, or flat?','Seasonality: does volume spike on certain days or months?','Assumption documentation: write down what you assumed so you know why you were wrong','Buffer: build in 10–15% headroom for unplanned volume spikes'],
+   exercise:{type:'Practice problem',text:'Last 6 Mondays: 48, 52, 44, 55, 51, 58\n\n(1) Calculate the 6-week average\n(2) Is there a trend? Which direction?\n(3) Forecast next Monday\n(4) Write one assumption that could be wrong\n(5) What staffing decision does your forecast drive?',
+     answer:[
+       '(1) Average = (48+52+44+55+51+58) ÷ 6 = 308 ÷ 6 = <strong>51.3 packages</strong>',
+       '(2) Trend: The data goes 48→52→44→55→51→58. The low point is week 3 (44), after which volume is generally rising. A simple linear trend: first 3 weeks avg = 48, last 3 weeks avg = 54.7. <strong>Upward trend of ~6.7 packages per 3-week period</strong>',
+       '(3) Trend-adjusted forecast: 51.3 baseline + ~2 trend adjustment = <strong>~53–55 packages</strong> is a reasonable forecast',
+       '(4) Assumption that could be wrong: "The trend continues." If a building has a policy change, move-in event, or holiday, volume could spike or drop regardless of trend.',
+       '(5) Staffing: At 8.5 packages/hr, 54 packages needs ~6.4 liaison-hours. At 5.5 hr shifts, you need <strong>2 liaisons with overlap</strong> — not 3.'
+     ]},
+   deepDive:{
+     text:'<strong>Moving average vs. weighted average:</strong> A simple moving average treats all past weeks equally. A weighted moving average gives more weight to recent weeks — better when volume is trending. Example: weight last week at 40%, 2 weeks ago at 30%, 3 weeks ago at 20%, 4 weeks ago at 10%.\n\n<strong>Seasonality factors:</strong> After 3+ months of data, you can calculate a seasonality index. If Mondays average 15% above your weekly average, your Monday index is 1.15. Multiply your baseline forecast by the day\'s index for a seasonality-adjusted number.\n\n<strong>Forecast accuracy tracking:</strong> Every week, log your forecast vs. actual. Calculate MAPE (Mean Absolute Percentage Error): |Actual − Forecast| ÷ Actual × 100. Below 10% is good for ops forecasting. Track it — it tells you if your method is improving.\n\n<strong>When to override the model:</strong> Known events should override statistical forecasts: a building hosting a large event, a long weekend, a new client onboarding. Document every override and the reason.',
+     excel:[
+       {title:'Simple moving average forecast',steps:[
+         {label:'Enter historical volume in column B (dates in A)',formula:'A1: Date | B1: Volume\nA2: Mon Apr 7 | B2: 48\n... (6 weeks of data)'},
+         {label:'4-week simple moving average (in C8 for week 5 forecast)',formula:'=AVERAGE(B4:B7)\n(Always 4 rows back)'},
+         {label:'Weighted moving average (more weight to recent)',formula:'=(B7*0.4)+(B6*0.3)+(B5*0.2)+(B4*0.1)\n(Weights must sum to 1.0)'},
+         {label:'Trend line with FORECAST.LINEAR',formula:'=FORECAST.LINEAR(A8,B2:B7,ROW(B2:B7))\nThis fits a linear trend and projects it forward.'},
+         {label:'Track forecast accuracy with MAPE',formula:'=ABS(B2-C2)/B2\n(Format as %, do this for each week)\nThen: =AVERAGE(D2:D7) for overall MAPE'}
+       ],note:'Use FORECAST.LINEAR when you see a clear upward or downward trend. Use AVERAGE when volume is flat. Never use a formula you cannot explain to your VP.'}
+     ]
+   },
+   ask:'Help me build a simple weekly volume forecast I can use to make staffing decisions'},
+
+  {day:7,track:'cost',dur:'40 min',title:'Your cost structure — fixed vs. variable',
+   concept:'Every cost is either fixed (does not change with volume) or variable (scales with delivery). For a liaison service with predominantly part-time hourly staff, most of your cost is variable. That is a strength when volume drops — but it means your margin is exposed every time you over-staff a slow day.',
+   points:['Fixed: management salaries, software, equipment leases','Variable: hourly liaison pay, per-delivery supplies','Semi-variable: a part-time coordinator with a minimum guarantee','Contribution margin: Revenue minus Variable Costs','Key question: if volume drops 20%, which costs drop with it? Which do not?'],
+   exercise:{type:'Build it',text:'List every cost in your region. Label each F (fixed), V (variable), or S (semi-variable). Total each category.\n\nThen answer:\n(1) What % of your total cost is variable?\n(2) If volume dropped 25% for 3 weeks, what would happen to your P&L?\n(3) What is your minimum viable labor floor?'},
+   deepDive:{
+     text:'<strong>The break-even point:</strong> This is the revenue level at which you cover all costs and make zero profit. Below it, you lose money. Above it, you make money. Every dollar above break-even contributes to profit at your contribution margin rate.\n\nBreak-even formula: Fixed Costs ÷ Contribution Margin %\n\nExample: Fixed costs $18,000/month, contribution margin 40% → Break-even = $18,000 ÷ 0.40 = $45,000 in revenue. You must bill at least $45,000 before making a dollar of profit.\n\n<strong>Operating leverage:</strong> Operations with high fixed costs (airlines, hospitals) have high operating leverage — a small revenue increase creates a large profit increase, but a small revenue drop creates a large loss. Your liaison service has low operating leverage (mostly variable costs) — more stable, less upside.\n\n<strong>The contribution margin income statement:</strong> Finance typically presents P&Ls by function (operations, admin). A contribution margin income statement separates variable from fixed costs, giving you a cleaner picture of operational profitability.',
+     excel:[
+       {title:'Break-even calculator in Excel',steps:[
+         {label:'Set up inputs section',formula:'B1: Monthly Revenue\nB2: Variable Cost % of Revenue\nB3: Fixed Costs'},
+         {label:'Calculate contribution margin %',formula:'B5: =1-B2\n(If variable costs are 58% of revenue, CM% is 42%)'},
+         {label:'Calculate break-even revenue',formula:'B6: =B3/B5\n(Fixed costs divided by contribution margin %)'},
+         {label:'Calculate break-even packages (if avg revenue per package known)',formula:'B7: =B6/B8\n(B8 = avg revenue per package)'},
+         {label:'Sensitivity table — what if variable % changes?',formula:'Use Data → What-If Analysis → Data Table\nRow input: Variable cost %\nColumn input: Fixed costs\nThis builds a matrix showing break-even under different scenarios'}
+       ],note:'Keep this model updated monthly. When a client renegotiates rates or you add fixed overhead, recalculate your break-even immediately so you know what revenue target you are working toward.'}
+     ]
+   },
+   ask:'Help me calculate my region\'s contribution margin and understand what it means for profitability'},
+
+  {day:8,track:'bridge',dur:'40 min',title:'Every operational decision has a dollar sign',
+   concept:'Business stewardship means you see the financial consequence of operational choices in real time — not at month-end. This is not about being a finance person. It is about speaking both languages so you can advocate for your region, defend your decisions, and find savings without being told to.',
+   points:['Over-staffing one day: (extra hours) × (hourly rate) = direct P&L hit','One wrong-door delivery: ~45 min recovery + reputational risk','1 more package per hour per liaison × 3 liaisons × 5 days = material savings','Unplanned overtime: typically 1.5× rate — know your trigger thresholds','Think in cost-per-unit, not just headcount'],
+   scenario:'Friday volume: 31 packages vs. 48 forecasted. All 3 liaisons scheduled. L3 earns $18/hr, has 3.5 hours remaining.\n\nDo you release L3 early? Calculate the savings. What is the risk? What is your call — and how would you explain it to your VP?',
+   deepDive:{
+     text:'<strong>The cost of a wrong-door delivery:</strong> Most operators think of a wrong-door delivery as an inconvenience. Here is the real math: Recovery liaison time: 45 min ($13.50 at $18/hr). Supervisor notification and follow-up: 20 min ($10). Resident communication: 15 min ($4.50). Total direct cost: ~$28 per incident. If you have 3 incidents/week, that is $84/week — $4,368/year. A process that prevents wrong-door deliveries that costs $2,000 to implement pays back in under 6 months.\n\n<strong>The scheduling decision framework:</strong> When deciding whether to keep or release a liaison, calculate: (1) Labor savings from early release, (2) Revenue at risk if volume comes in higher than expected, (3) Client relationship cost if SLA is missed. If savings > risk, release. If not, keep.\n\n<strong>Thinking in cost-per-unit:</strong> Divide all your costs by packages delivered. If you delivered 400 packages and spent $3,200 on labor, your cost-per-package is $8.00. Track this weekly. A rising number means declining efficiency even if revenue looks fine.',
+     excel:[
+       {title:'Operational decision calculator',steps:[
+         {label:'Early release decision model',formula:'A1: Hours remaining\nA2: Hourly rate\nA3: Labor savings\nB3: =A1*A2'},
+         {label:'Cost of wrong-door delivery',formula:'A5: Recovery time (hours)\nA6: Liaison rate\nA7: Supervisor time (hours)\nA8: Supervisor rate\nA9: Total cost\nB9: =(A5*A6)+(A7*A8)'},
+         {label:'Weekly cost-per-package',formula:'A11: Total weekly labor cost\nA12: Packages delivered\nA13: Cost per package\nB13: =A11/A12\n(Track this every week in a running table)'},
+         {label:'Annual cost of errors at current rate',formula:'A15: Errors per week\nA16: Cost per error\nA17: Annual cost\nB17: =A15*A16*52'}
+       ],note:'Build this as a permanent calculator tab in your ops workbook. Before any staffing decision, run the numbers. The habit of calculating before deciding is what separates operators from stewards.'}
+     ]
+   },
+   ask:'Help me build the habit of translating daily operational decisions into dollar terms'},
+
+  {day:9,track:'lead',dur:'35 min',title:'Shifting from execution to direction',
+   concept:'The trap for strong operators is staying in execution mode because it feels productive and you are good at it. But the higher you go, the more your job becomes creating conditions where others execute well — not doing it yourself.\n\nThis requires getting uncomfortable delegating work you could do faster, and investing in developing your team even when it feels inefficient.',
+   points:['Execution: you do the work','Direction: you define what good looks like and remove obstacles','Development: you grow capability so your region runs without you in the room','The test: if you took 3 days off, what breaks? That is what you need to systematize','Stewardship: caring about the long-term health of the operation, not just today\'s numbers'],
+   reflect:'Last 2 weeks: what % of your time was doing tasks vs. directing liaisons vs. developing people vs. thinking strategically? What does that ratio tell you?',
+   deepDive:{
+     text:'<strong>The four stages of competence (for developing liaisons):</strong>\n\n1. <strong>Unconsciously incompetent</strong> — they do not know what they do not know. They make mistakes confidently.\n2. <strong>Consciously incompetent</strong> — they understand the gap. They are uncomfortable but learning.\n3. <strong>Consciously competent</strong> — they can do it right but have to think about it.\n4. <strong>Unconsciously competent</strong> — they do it correctly without thinking.\n\nYour job as a manager is to move each liaison up these stages. Different stages need different interventions: stage 1 needs awareness, stage 2 needs encouragement, stage 3 needs repetition, stage 4 needs new challenges.\n\n<strong>The delegation ladder:</strong>\n- Level 1: "Do exactly what I say"\n- Level 2: "Research and report back"\n- Level 3: "Give me options"\n- Level 4: "Give me a recommendation"\n- Level 5: "Decide and tell me what you did"\n- Level 6: "Decide — no need to update me"\n\nMost managers hover at level 1-2. Real development means intentionally moving people up the ladder.',
+     excel:[
+       {title:'Time audit — where are you actually spending time?',steps:[
+         {label:'Set up a 2-week time log',formula:'A: Date\nB: Activity description\nC: Category (Execution/Direction/Development/Strategy/Admin)\nD: Time spent (hours)\nE: Value (High/Medium/Low)'},
+         {label:'SUMIF by category',formula:'=SUMIF(C:C,"Execution",D:D)\n=SUMIF(C:C,"Strategy",D:D)'},
+         {label:'Calculate % of time by category',formula:'=SUMIF(C:C,"Execution",D:D)/SUM(D:D)\n(Format as percentage)'},
+         {label:'Pie chart of time allocation',formula:'Select the category totals → Insert → Pie Chart\nTarget: <30% execution, >20% strategy/development'}
+       ],note:'Do this honestly for 2 weeks. Most regional managers find 60-70% of their time is execution. Seeing the number is the first step to changing it.'}
+     ]
+   },
+   ask:'Help me build a 90-day personal transition plan from operational executor to regional business steward'},
+
+  {day:10,track:'fin',dur:'50 min',title:'Labor cost deep dive — your biggest lever',
+   concept:'For a liaison service, labor is typically 55–70% of total costs. That makes it both your biggest expense and your biggest opportunity. Owning your P&L starts with owning your labor number — understanding what drives it and how to communicate changes before they show up on a report.',
+   points:['Total labor cost = hours × blended rate','Blended rate: average hourly cost weighted by hours worked','Overtime exposure: who hits 40 hours and when — track this weekly','Schedule efficiency: productive delivery hours divided by total paid hours','Labor % of revenue: target typically 45–55% for liaison services'],
+   exercise:{type:'Drill',text:'L1: 28 hrs @ $19.50 | L2: 32 hrs @ $17.00 | L3: 24 hrs @ $18.25\n\n(1) Total weekly labor cost\n(2) Blended hourly rate\n(3) Revenue this week: $8,400 — what is your labor % of revenue?\n(4) Target is 48% — are you over or under? By how many dollars?',
+     answer:[
+       '(1) L1: 28×$19.50=$546 | L2: 32×$17.00=$544 | L3: 24×$18.25=$438 | <strong>Total: $1,528</strong>',
+       '(2) Blended rate = Total cost ÷ Total hours = $1,528 ÷ (28+32+24) = $1,528 ÷ 84 = <strong>$18.19/hr</strong>',
+       '(3) Labor % of revenue = $1,528 ÷ $8,400 = <strong>18.2%</strong> — (this reflects a single week of part-time hours, not total regional cost)',
+       '(4) Target labor $ at 48%: $8,400 × 0.48 = $4,032. Actual: $1,528. <strong>$2,504 under target</strong> — meaning there is room in the budget, or other cost categories are consuming the remainder.'
+     ]},
+   deepDive:{
+     text:'<strong>The blended rate trap:</strong> Your blended rate is your average cost per hour across all liaisons. It changes every week based on who worked and how many hours. A week with more L1 hours (your highest earner) raises your blended rate even if no one got a raise. Track both the rate itself and what is driving it.\n\n<strong>Overtime math:</strong> Overtime kicks in at 40 hours/week (federal law) at 1.5× the regular rate. If L1 at $19.50 works 44 hours, the 4 OT hours cost $29.25 each instead of $19.50 — an $8.75 premium per hour, or $35 extra for those 4 hours. Multiply this across your region over a month and it adds up fast.\n\n<strong>Schedule efficiency:</strong> Not all paid hours produce deliveries. Buffer time, staging, admin, travel — these are paid but not "productive" in the delivery sense. Track: Delivery hours ÷ Total paid hours. Industry benchmark is 65–75% for liaison services. Below 65% means significant idle time. Above 80% means liaisons have no buffer and quality will suffer.',
+     excel:[
+       {title:'Weekly labor cost model',steps:[
+         {label:'Structure: one row per liaison per day',formula:'A: Date | B: Liaison | C: Scheduled hrs\nD: Actual hrs | E: Rate | F: Reg hrs\nG: OT hrs | H: Reg cost | I: OT cost | J: Total cost'},
+         {label:'Regular hours (capped at 8/day or weekly 40)',formula:'F2: =MIN(D2,8)\n(Or for weekly OT: track cumulative hours)'},
+         {label:'OT hours',formula:'G2: =MAX(D2-8,0)'},
+         {label:'Regular cost',formula:'H2: =F2*E2'},
+         {label:'OT cost (1.5x rate)',formula:'I2: =G2*(E2*1.5)'},
+         {label:'Total cost',formula:'J2: =H2+I2'},
+         {label:'Blended rate (summary row)',formula:'=SUM(J:J)/SUM(D:D)\n(Total cost divided by total hours)'},
+         {label:'Labor % of revenue',formula:'=SUM(J:J)/[Weekly Revenue Cell]\n(Format as percentage)'}
+       ],note:'Add a "Budget" column next to each actual. Variance = Actual − Budget. Color-code weekly. This model, maintained for 12 weeks, gives you a powerful trend view and makes every budget conversation easy.'}
+     ]
+   },
+   ask:'Help me build a weekly labor tracking habit that keeps me ahead of my P&L'},
+
+  {day:11,track:'xl',dur:'55 min',title:'Building a labor cost model in Excel',
+   concept:'A labor cost model tells you, at any point, what your labor spend is vs. budget — by liaison, by day, by week. It moves you from reacting to variance to predicting it. Properly built, it takes 10 minutes a day to update and saves hours of explanation at month-end.',
+   points:['Structure: one row per liaison per day. Date, name, scheduled hours, actual hours, rate, cost','SUMIF by week: total cost by liaison or week automatically','Budget column plus variance column: actual minus budget','Conditional formatting: flag days where actual exceeds scheduled by more than 15%','Line chart: actual vs. budget by week — the visual tells the story instantly'],
+   exercise:{type:'Build it',text:'Build a 4-week labor model:\n- 60 rows: L1, L2, L3 × 5 days × 4 weeks\n- Columns: Date | Liaison | Sched Hrs | Actual Hrs | Rate | Actual $ | Budget $ | Variance\n- SUMIF totals by liaison and by week\n- Line chart: actual vs. budget\n\nThis is a real tool you can use starting Monday.'},
+   deepDive:{
+     text:'<strong>The 3 reports your labor model should generate automatically:</strong>\n\n1. <strong>Daily flash:</strong> Today\'s actual hours vs. scheduled, by liaison. Takes 30 seconds to update. Tells you immediately if you are tracking over or under.\n\n2. <strong>Weekly summary:</strong> Total hours, total cost, budget variance, labor % of revenue. One row per week. This becomes your running history.\n\n3. <strong>Liaison performance:</strong> Hours, cost, and efficiency (packages per hour) by liaison, by month. Identifies your highest and lowest performers on a cost basis.\n\n<strong>Making the model self-updating:</strong> Use structured Excel tables (Ctrl+T) instead of plain ranges. Tables auto-expand when you add rows, and SUMIF formulas referencing table columns update automatically. This eliminates the #N/A errors that creep in when data grows.\n\n<strong>Protecting the model:</strong> Lock formula cells so they cannot be accidentally edited. Select formula cells → Format Cells → Protection → Locked. Then Review → Protect Sheet. Input cells (actual hours) stay unlocked.',
+     excel:[
+       {title:'Full labor model with automatic weekly summaries',steps:[
+         {label:'Create the data table (convert to Table: Ctrl+T)',formula:'Headers: Date|Liaison|Sched_Hrs|Actual_Hrs|Rate|Actual_$|Budget_$|Variance|Week_Num'},
+         {label:'Auto-calculate Actual $ with rate lookup',formula:'Actual_$: =[@Actual_Hrs]*XLOOKUP([@Liaison],RateTable[Liaison],RateTable[Rate])'},
+         {label:'Variance column',formula:'Variance: =[@Actual_$]-[@Budget_$]'},
+         {label:'Week number (for grouping)',formula:'Week_Num: =WEEKNUM([@Date])'},
+         {label:'Summary table — weekly totals (separate sheet)',formula:'=SUMIF(DataTable[Week_Num],A2,DataTable[Actual_$])\n=SUMIF(DataTable[Week_Num],A2,DataTable[Budget_$])\n=SUMIF(DataTable[Week_Num],A2,DataTable[Variance])'},
+         {label:'Liaison summary — cost and hours by person',formula:'=SUMIF(DataTable[Liaison],"L1",DataTable[Actual_$])\n=SUMIF(DataTable[Liaison],"L1",DataTable[Actual_Hrs])'},
+         {label:'Line chart: actual vs. budget by week',formula:'Select weekly summary columns → Insert → Line Chart\nSeries 1: Actual $ | Series 2: Budget $\nAdd data labels. Format the budget line as dashed.'}
+       ],note:'Once built, this model requires only 5-10 minutes of daily updates (entering actual hours). Everything else calculates automatically. Save a new copy at the start of each month.'}
+     ]
+   },
+   ask:'Show me exactly how to build a liaison labor cost model in Excel with formulas and a variance chart'},
+
+  {day:12,track:'tab',dur:'55 min',title:'Tableau fundamentals — your first ops dashboard',
+   concept:'Tableau turns your data into interactive visuals that help you and stakeholders understand what is happening faster than any spreadsheet. The goal in week one is one working dashboard. For a regional ops manager, the highest-value first dashboard shows volume by day and liaison, error rate trends, and labor vs. budget.',
+   points:['Dimensions: categorical data — liaison name, building, day of week','Measures: numeric data you aggregate — packages, hours, errors','Marks card: controls color, size, labels','Filters: let you and your audience slice the data interactively','Dashboard: combine 2-3 views on one screen with a shared filter'],
+   exercise:{type:'Build it',text:'Download Tableau Public (free). Connect to your Excel ops tracker.\n\nBuild 3 views:\n(1) Bar chart: total packages by liaison this week\n(2) Line chart: daily volume over 4 weeks\n(3) Highlight table: errors by liaison by day\n\nPut all 3 on one dashboard. Add a filter for date range.'},
+   deepDive:{
+     text:'<strong>Tableau vs. Excel charts — when to use each:</strong>\nExcel charts are best for static reports you send to leadership. Tableau is best for interactive exploration — when you or your audience wants to filter, drill down, or compare time periods dynamically.\n\n<strong>Calculated fields in Tableau:</strong> Tableau lets you create new metrics from your existing data. Example: if your data has Packages and Hours, you can create a calculated field: Productivity Rate = SUM([Packages]) / SUM([Hours]). This appears as a new measure you can drag onto any chart.\n\n<strong>The Tableau workflow:</strong> Connect data → Build views → Assemble dashboard → Publish. The most common mistake is trying to build the dashboard before building individual views. Always build each chart separately, then combine.\n\n<strong>Filters vs. actions:</strong> A filter applies to the whole dashboard. An action is triggered by clicking a mark — click a liaison bar and all other charts filter to show only that liaison. Actions are more powerful but require setup (Dashboard → Actions → Filter).',
+     excel:[
+       {title:'Prep your Excel data for Tableau',steps:[
+         {label:'Flatten your data — one row per event (not summary)',formula:'Wrong format:\nLiaison | Mon | Tue | Wed\nL1 | 45 | 38 | 52\n\nRight format:\nDate | Liaison | Packages\n5/1 | L1 | 45\n5/2 | L1 | 38'},
+         {label:'No merged cells, no blank rows, no summary rows in the data',formula:'Tableau reads row by row. Merged cells and blank rows break the connection. Keep your summary calculations on a separate sheet.'},
+         {label:'Date column formatted as Date (not text)',formula:'Select date column → Format Cells → Date\nTableau needs to recognize it as a date to enable time-series views.'},
+         {label:'Consistent naming — no typos in category columns',formula:'If Liaison column has "L1", "l1", "L 1" — Tableau treats these as 3 different liaisons. Use data validation in Excel to enforce consistent entry.'}
+       ],note:'The cleaner your Excel data, the less time you spend troubleshooting in Tableau. Spend 10 minutes formatting your source data correctly and save an hour of Tableau cleanup.'}
+     ]
+   },
+   ask:'Walk me through building a regional ops Tableau dashboard step by step from my Excel data'},
+
+  {day:13,track:'fc',dur:'45 min',title:'Staffing to forecast — volume to labor decisions',
+   concept:'Once you can forecast volume, use it to make staffing decisions before the week starts. For a liaison service, the key conversion is packages per liaison-hour. Know that number and you can work backwards from any volume forecast to the hours you need.',
+   points:['Productivity rate: total packages divided by total liaison hours','Required hours: forecasted volume divided by productivity rate','Required liaisons: hours needed divided by shift length','Buffer: add 10-15% for variance, breaks, non-delivery time','Schedule check: compare required to available hours before committing'],
+   exercise:{type:'Practice problem',text:'Productivity rate: 8.5 packages/liaison-hour\nForecast for Monday: 64 packages\nShift length: 5.5 hours\n\n(1) Liaison-hours needed?\n(2) How many liaisons to schedule?\n(3) Add 12% buffer — does your answer change?\n(4) Available: L1 (5.5 hrs), L2 (5 hrs), L3 (4.5 hrs). Are you covered?',
+     answer:[
+       '(1) Liaison-hours needed = 64 ÷ 8.5 = <strong>7.53 hours</strong>',
+       '(2) Liaisons needed = 7.53 ÷ 5.5 hr shift = 1.37 → <strong>round up to 2 liaisons</strong>',
+       '(3) With 12% buffer: 7.53 × 1.12 = 8.43 hours needed. 8.43 ÷ 5.5 = 1.53 → <strong>still 2 liaisons</strong> (but closer to needing a partial third)',
+       '(4) L1 (5.5) + L2 (5.0) = 10.5 hours available vs. 8.43 needed. <strong>Yes, covered</strong> — with ~2 hours of buffer capacity. L3 is not needed Monday.'
+     ]},
+   deepDive:{
+     text:'<strong>The staffing model full loop:</strong>\n1. Forecast volume (packages)\n2. Calculate required hours (volume ÷ productivity rate × buffer)\n3. Assign to liaisons (match required hours to available hours)\n4. Identify gaps or surplus\n5. Adjust (early release, call-in, or accept gap)\n6. Track actual vs. forecast — use the difference to improve next week\'s forecast\n\n<strong>Productivity rate variability:</strong> Your 8.5 packages/hr rate is an average. It varies by day of week (Mondays may be slower), by building (high-rise floors take longer), and by liaison (L1 may be faster than L3). Tracking by liaison lets you staff your fastest liaison on your heaviest days.\n\n<strong>The cost of over-staffing vs. under-staffing:</strong> Over-staffing by 1 liaison for a 5.5-hr shift at $18/hr = $99 wasted. Under-staffing and missing an SLA window = potential client credit + relationship damage. The math usually favors having one more liaison than you need — but not two.',
+     excel:[
+       {title:'Staffing calculator — volume to schedule',steps:[
+         {label:'Input section',formula:'B1: Forecasted volume (packages)\nB2: Productivity rate (pkg/hr)\nB3: Shift length (hrs)\nB4: Buffer % (e.g. 0.12 for 12%)'},
+         {label:'Required hours (before buffer)',formula:'B6: =B1/B2'},
+         {label:'Required hours (with buffer)',formula:'B7: =B6*(1+B4)'},
+         {label:'Liaisons needed',formula:'B8: =CEILING(B7/B3,1)\n(CEILING rounds UP to nearest whole number — always better to have too many than too few)'},
+         {label:'Available hours check',formula:'B10: L1 available hrs\nB11: L2 available hrs\nB12: L3 available hrs\nB13: Total available: =SUM(B10:B12)\nB14: Gap/surplus: =B13-B7\n(Positive = surplus, Negative = gap)'},
+         {label:'Cost of schedule',formula:'B16: =(B10*L1_rate)+(B11*L2_rate)+(B12*L3_rate)\n(Reference your rate table via XLOOKUP)'}
+       ],note:'Build one tab of this calculator per day of the week. On Sunday, run all 5 tabs with your weekly forecasts to generate your full staffing plan before the week starts.'}
+     ]
+   },
+   ask:'Help me build a staffing model that converts my weekly volume forecast into a liaison schedule'},
+
+  {day:14,track:'cost',dur:'40 min',title:'Strategic cost management — cut smart, not just cut',
+   concept:'When the directive comes to reduce cost, most operators cut headcount across the board. Strategic cost management means knowing which costs create value and which do not — and cutting the ones that do not while protecting the ones that do.\n\nA wrong-door delivery looks like a small error. But it costs recovery labor, damages the client relationship, and can jeopardize a contract.',
+   points:['Value-adding costs: everything that directly produces what your client pays for','Non-value-adding: waste, rework, idle time, over-staffing against actual volume','Cost of poor quality: wrong deliveries and missed windows have real dollar values','Cost avoidance vs. reduction: preventing a cost vs. eliminating one that exists','The question: if I cut this, what breaks? If nothing, cut it. If something, quantify the risk first.'],
+   scenario:'Your VP asks for $8,000 in annual savings. Three options:\n(A) Reduce L3 hours by 3/week ($2,808/yr)\n(B) End Saturday afternoon window 90 min early ($3,744/yr)\n(C) 2-liaison model on Tuesdays instead of 2+on-call ($3,120/yr)\n\nWhich do you recommend? What are the risks? How do you present this?',
+   deepDive:{
+     text:'<strong>The cost reduction hierarchy:</strong>\n1. Eliminate waste first (idle time, errors, rework) — zero service impact\n2. Reduce non-core activities (admin, excess reporting) — minimal impact\n3. Reduce coverage strategically (cut low-volume windows) — moderate impact, requires client communication\n4. Reduce headcount — highest impact, highest risk\n\nAlways start at level 1. Most operations have 10-15% waste that can be eliminated before touching service levels.\n\n<strong>How to build a cost reduction business case:</strong> For each option: (1) Annual savings, (2) Implementation cost, (3) Ongoing risk cost (probability of SLA miss × cost of miss), (4) Net benefit = savings − implementation − expected risk cost. Present all three options with this math. You look like a business person, not just someone executing a directive.\n\n<strong>Cost avoidance:</strong> Sometimes the best cost reduction is preventing a cost that has not yet occurred. If your contract has a penalty clause for missed windows, every window you protect is cost avoidance. Quantify it: "Preventing 2 penalty events per month at $500 each = $12,000 in annual cost avoidance."',
+     excel:[
+       {title:'Cost reduction decision model',steps:[
+         {label:'Set up options as rows',formula:'A: Option\nB: Annual savings\nC: Implementation cost\nD: Risk probability\nE: Cost if risk occurs\nF: Expected risk cost (=D*E)\nG: Net annual benefit (=B-C-F)'},
+         {label:'Option A example',formula:'A2: Reduce L3 hours\nB2: 2808\nC2: 0\nD2: 0.15 (15% chance of service gap)\nE2: 3000 (estimated SLA penalty)\nF2: =D2*E2  →  $450\nG2: =B2-C2-F2  →  $2,358 net'},
+         {label:'Sort by net benefit',formula:'Select all data → Data → Sort → Column G (descending)\nHighest net benefit rises to top'},
+         {label:'Sensitivity analysis — what if risk is higher?',formula:'Data → What-If Analysis → Data Table\nRow: Risk probability (D)\nColumn: Cost if risk occurs (E)\nThis shows how net benefit changes as risk assumptions change'}
+       ],note:'Present this table to your VP. It demonstrates that you evaluated options financially, not just operationally. This is what business stewardship looks like in practice.'}
+     ]
+   },
+   ask:'Help me develop a cost reduction proposal that protects service quality'},
+
+  {day:15,track:'bridge',dur:'45 min',title:'Owning the narrative — presenting your region to leadership',
+   concept:'The difference between a manager who gets resources and one who does not is usually not performance — it is communication. Leadership makes decisions based on the story they hear. If you do not tell your region\'s story clearly, someone else tells it through a spreadsheet with no context.',
+   points:['Lead with the headline: revenue, labor %, gross margin','Explain variance before you are asked','Connect ops to finance: every operational metric has a dollar translation','Your ask needs a ROI: adding 4 hrs of L2 on Thursdays costs $272/week and prevents 2 missed windows','Weekly brief update beats detailed monthly report nobody reads'],
+   exercise:{type:'Write it',text:'Write a 5-sentence regional update:\n(1) Financial headline: revenue, labor %, gross margin\n(2) Operational headline: on-time %, error rate\n(3) One variance explanation\n(4) One thing you are proactively addressing\n(5) One ask with a cost and justification\n\nThis format, done weekly, builds your reputation as someone who runs a business — not just an operation.'},
+   reflect:'Your last leadership update — did you lead with financial outcomes or operational activity? What would it sound like if you led with margin first?',
+   deepDive:{
+     text:'<strong>The executive communication framework:</strong>\n\nLeadership attention is scarce. Structure every update using BLUF — Bottom Line Up Front. State your conclusion first, then the supporting data. The opposite of how most operators present.\n\nWrong: "So last week we had 412 deliveries across 4 buildings, and L2 had some scheduling issues on Wednesday which caused us to run a little over on labor, and we also had 2 wrong-door incidents..."\n\nRight: "Region was profitable at 51% gross margin. Two items: labor ran $800 unfavorable due to Wednesday coverage — recoverable next week. Two wrong-door incidents — root cause identified, process fix in place."\n\n<strong>The ask framework:</strong> Every resource request needs three things: (1) The cost, (2) The return, (3) The risk of not doing it. Example: "Adding L2 Thursday coverage costs $306/week ($15,912/year). It closes our Thursday SLA gap — we missed the window 3 of the last 8 Thursdays. Each miss risks a $500 penalty. Expected penalty cost without the fix: $975/year. Net cost of the fix: $14,937. But it eliminates client escalation risk entirely."\n\n<strong>Building your narrative data asset:</strong> Keep a running "wins and misses" log — one line per week noting what went right, what went wrong, and what you did about it. After 6 months, you can walk into any performance review with a fully documented story of your region.',
+     excel:[
+       {title:'Weekly regional update — auto-populating template',steps:[
+         {label:'Summary tab that pulls from your labor and ops data',formula:'Financial headline row:\nRevenue: =SUM(RevenueData[Week])\nLabor %: =SUM(LaborData[Actual_$])/Revenue\nGross Margin: =(Revenue-COGS)/Revenue'},
+         {label:'Variance vs. prior week',formula:'Labor variance: =ThisWeek_Labor-LastWeek_Labor\nVolume variance: =ThisWeek_Pkgs-LastWeek_Pkgs'},
+         {label:'Operational metrics',formula:'On-time %: =COUNTIF(DeliveryLog[Status],"On Time")/COUNT(DeliveryLog[Date])\nError rate: =COUNTIF(DeliveryLog[Errors],">0")/COUNT(DeliveryLog[Date])'},
+         {label:'Running wins/misses log',formula:'A: Week\nB: Win (one line)\nC: Miss (one line)\nD: Action taken\n\nKeep appending. Never delete rows.'},
+         {label:'Dashboard for leadership: key metrics at a glance',formula:'Use a separate "Dashboard" tab\nPull from data tabs with =formulas\nNo editing on dashboard tab — formulas only\nColor-code: Green if on target, Red if off'}
+       ],note:'Send this as a PDF (File → Export → PDF) not an Excel file. Leadership should read your narrative, not edit your formulas. The Excel model is yours — the PDF is theirs.'}
+     ]
+   },
+   ask:'Help me write a compelling weekly regional update that positions me as a business steward, not just an operator'},
+];
+
+const GLOSSARY=[
+  {term:'P&L (Profit & Loss)',def:'Financial statement showing revenue, costs, and profit over a period. Your primary accountability document.',formula:'Net Income = Revenue − COGS − Operating Expenses − Interest − Taxes',track:'fin'},
+  {term:'Gross profit',def:'Revenue minus COGS (direct costs). For a liaison service, COGS is primarily hourly labor.',formula:'Gross Profit = Revenue − COGS',track:'fin'},
+  {term:'Gross margin %',def:'Gross profit as a percentage of revenue. Most important indicator of operational efficiency.',formula:'Gross Margin % = (Gross Profit ÷ Revenue) × 100',track:'fin'},
+  {term:'EBITDA',def:'Earnings Before Interest, Taxes, Depreciation & Amortization. Core operational profitability before accounting adjustments.',formula:'EBITDA = Revenue − COGS − Operating Expenses',track:'fin'},
+  {term:'Variance',def:'Gap between budget and actuals. Favorable = better than plan. Unfavorable = worse than plan.',formula:'Variance $ = Actual − Budget',track:'fin'},
+  {term:'Volume variance',def:'Portion of total variance caused by doing more or fewer units than planned — at the budgeted rate.',formula:'Volume Variance = (Actual Units − Budget Units) × Budget Rate',track:'fin'},
+  {term:'Rate variance',def:'Portion of total variance caused by paying a different rate per unit than budgeted.',formula:'Rate Variance = Actual Units × (Actual Rate − Budget Rate)',track:'fin'},
+  {term:'Blended rate',def:'Weighted average hourly cost across all liaisons, accounting for different pay rates and hours worked.',formula:'Blended Rate = Total Labor Cost ÷ Total Hours Worked',track:'fin'},
+  {term:'Labor % of revenue',def:'Total labor cost as a percentage of revenue. Primary labor efficiency metric. Target: 45–55% for liaison services.',formula:'Labor % = (Total Labor Cost ÷ Revenue) × 100',track:'fin'},
+  {term:'Break-even point',def:'The revenue level at which total costs equal total revenue — zero profit, zero loss. Below this, you lose money.',formula:'Break-Even Revenue = Fixed Costs ÷ Contribution Margin %',track:'cost'},
+  {term:'Contribution margin',def:'Revenue minus variable costs. What remains after variable costs to cover fixed costs and generate profit.',formula:'Contribution Margin = Revenue − Variable Costs
+CM % = (CM ÷ Revenue) × 100',track:'cost'},
+  {term:'Fixed cost',def:'A cost that stays constant regardless of delivery volume — management salary, software subscriptions, equipment leases.',formula:'Total Cost = Fixed Costs + (Variable Cost per Unit × Units)',track:'cost'},
+  {term:'Variable cost',def:'A cost that scales directly with delivery volume — hourly liaison labor, per-delivery supplies.',formula:'Total Variable Cost = Variable Cost per Unit × Units Delivered',track:'cost'},
+  {term:'Cost of poor quality',def:'The real dollar cost of operational errors — recovery labor, client credits, SLA penalties, contract risk.',formula:'CPQ = (Recovery time × Rate) + (Supervisor time × Rate) + Penalty risk',track:'cost'},
+  {term:'KPI',def:'Key Performance Indicator. A small set of metrics that tell you if your operation is healthy. Good KPIs are actionable and tied to outcomes.',formula:'On-Time % = (On-Time Deliveries ÷ Total Deliveries) × 100',track:'ops'},
+  {term:'Productivity rate',def:'Packages delivered per liaison-hour worked. Used to convert volume forecasts into staffing requirements.',formula:'Productivity Rate = Total Packages ÷ Total Liaison-Hours',track:'ops'},
+  {term:'Schedule efficiency',def:'Ratio of productive delivery hours to total paid hours. Benchmark: 65–75% for liaison services.',formula:'Schedule Efficiency = Delivery Hours ÷ Total Paid Hours',track:'ops'},
+  {term:'Cost per unit',def:'Total operational cost divided by units delivered. Rising cost-per-unit signals declining efficiency even when revenue looks stable.',formula:'Cost Per Package = Total Weekly Cost ÷ Packages Delivered',track:'ops'},
+  {term:'SLA',def:'Service Level Agreement. Contractual commitment to deliver within defined time, accuracy, and quality parameters.',formula:'SLA Compliance % = (Windows Met ÷ Total Windows) × 100',track:'ops'},
+  {term:'Simple moving average',def:'Forecast baseline calculated by averaging the last N periods of data. Treats all periods equally.',formula:'SMA(4) = (Week1 + Week2 + Week3 + Week4) ÷ 4
+Excel: =AVERAGE(B4:B7)',track:'fc'},
+  {term:'Weighted moving average',def:'Forecast that gives more weight to recent periods. Better than simple average when volume is trending.',formula:'WMA = (W1×0.4) + (W2×0.3) + (W3×0.2) + (W4×0.1)
+(Weights must sum to 1.0)',track:'fc'},
+  {term:'MAPE',def:'Mean Absolute Percentage Error. Measures forecast accuracy. Below 10% is good for operations forecasting.',formula:'MAPE = |Actual − Forecast| ÷ Actual × 100
+Excel: =ABS(B2-C2)/B2',track:'fc'},
+  {term:'Staffing buffer',def:'Extra capacity (10–15%) built into a schedule to absorb forecast error and unplanned volume spikes.',formula:'Required Hours (buffered) = Base Hours × (1 + Buffer %)
+Liaisons needed: =CEILING(Hours/Shift_Length,1)',track:'fc'},
+  {term:'SUMIF',def:'Excel function that adds values in a range only where a matching condition is met.',formula:'=SUMIF(range, criteria, sum_range)
+Example: =SUMIF(B:B,"L1",C:C)',track:'xl'},
+  {term:'SUMIFS',def:'Excel function that adds values where multiple conditions are all met simultaneously.',formula:'=SUMIFS(sum_range, range1, criteria1, range2, criteria2)
+Example: =SUMIFS(C:C,B:B,"L2",A:A,"Friday")',track:'xl'},
+  {term:'XLOOKUP',def:'Excel function that finds a value in a lookup array and returns corresponding data from a return array. Replaces VLOOKUP.',formula:'=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found])
+Example: =XLOOKUP(B2,Sheet2!A:A,Sheet2!B:B,0)',track:'xl'},
+  {term:'IFERROR',def:'Excel wrapper that catches formula errors and returns a specified value instead of #N/A or #DIV/0!.',formula:'=IFERROR(your_formula, value_if_error)
+Example: =IFERROR(XLOOKUP(B2,A:A,C:C),0)',track:'xl'},
+  {term:'AVERAGEIF',def:'Excel function that calculates the average of values in a range that meet a specified condition.',formula:'=AVERAGEIF(range, criteria, average_range)
+Example: =AVERAGEIF(B:B,"L1",D:D)',track:'xl'},
+  {term:'FORECAST.LINEAR',def:'Excel function that projects a future value based on a linear trend fitted to historical data.',formula:'=FORECAST.LINEAR(x, known_ys, known_xs)
+Example: =FORECAST.LINEAR(A8,B2:B7,ROW(B2:B7))',track:'xl'},
+  {term:'CEILING',def:'Excel function that rounds a number UP to the nearest multiple. Used in staffing models to always round up liaisons needed.',formula:'=CEILING(number, significance)
+Example: =CEILING(1.37,1)  →  2
+(Always round UP for staffing)',track:'xl'},
+  {term:'Dimension (Tableau)',def:'A categorical field used to slice and group data — liaison name, building, day of week.',formula:'Examples: Liaison Name, Building ID, Day of Week, Window (W1/W2/W3)',track:'tab'},
+  {term:'Measure (Tableau)',def:'A numeric field that can be aggregated with SUM, AVG, COUNT, etc. — package count, labor hours, error rate.',formula:'Calculated field example:
+Productivity Rate = SUM([Packages])/SUM([Hours])',track:'tab'},
+  {term:'Stewardship',def:'Taking long-term responsibility for the health of a business — not just hitting this week's numbers.',formula:'No formula — it is a mindset: every decision evaluated for both operational AND financial impact.',track:'lead'},
+  {term:'SBI feedback model',def:'Situation-Behavior-Impact. A structured feedback framework that removes defensiveness and makes issues concrete.',formula:'S: "On Friday during Window 2..."
+B: "you delivered to 14B without checking the door number..."
+I: "which caused a 45-minute recovery and a resident complaint."',track:'lead'},
+  {term:'Ops-to-finance bridge',def:'The skill of translating operational decisions and metrics into financial language that leadership understands.',formula:'Example: "Releasing L3 early saves 3.5 hrs × $18 = $63. Risk of volume spike: 15% × $200 SLA cost = $30. Expected net savings: $33."',track:'bridge'},
+];
+
+
+
+// State
+let state = {completed:[], curDay:1, notifOn:false, notifTime:'07:00', streak:0, filter:'all'};
+try { const s=localStorage.getItem('devhub'); if(s) state={...state,...JSON.parse(s)}; } catch(e) {}
+
+function save() { try { localStorage.setItem('devhub', JSON.stringify(state)); } catch(e) {} }
+
+function tc(id) { return TRACKS.find(t=>t.id===id)||TRACKS[0]; }
+
+function pill(trackId, sm) {
+  const t=tc(trackId);
+  return `<span class="track-pill" style="background:${t.bg};color:${t.color};font-size:${sm?'10px':'11px'}">${sm?'':('<i class="ti '+t.icon+'" style="font-size:12px"></i> ')}${t.name}</span>`;
+}
+
+function markDone(day) {
+  if(!state.completed.includes(day)) state.completed.push(day);
+  if(day===state.curDay && state.curDay<L.length) state.curDay++;
+  state.streak = Math.min(state.completed.length, 30);
+  save();
+  document.getElementById('streak-num').textContent = state.streak;
+  renderToday();
+}
+
+// --- TODAY ---
+function lessonBody(lesson, prefix) {
+  let h = `
+    <div class="section-heading">Concept</div>
+    <div class="body-text">${lesson.concept.replace(/\n/g,'<br><br>')}</div>
+    <div class="section-heading">Key points</div>
+    <ul class="bullet-list">${lesson.points.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+  if(lesson.scenario) h += `<div class="section-heading">Scenario</div><div class="scenario-box">${lesson.scenario.replace(/\n/g,'<br>')}</div>`;
+  if(lesson.exercise) {
+    h += `<div class="section-heading">${lesson.exercise.type}</div><div class="ex-box">${lesson.exercise.text.replace(/\n/g,'<br>')}</div>`;
+    if(lesson.exercise.answer) {
+      h += `<button class="answer-key-btn" onclick="togglePanel('${prefix}ak')"><i class="ti ti-key"></i> Show answer key</button>
+        <div class="answer-key-panel" id="${prefix}ak">
+          <div class="ak-title"><i class="ti ti-check-list"></i> Answer key</div>
+          ${lesson.exercise.answer.map(a=>`<div class="ak-line">${a}</div>`).join('')}
+        </div>`;
+    }
+  }
+  if(lesson.reflect) h += `<div class="section-heading">Reflection</div><div class="reflect-box">${lesson.reflect}</div>`;
+  if(lesson.deepDive) {
+    h += `<button class="deep-dive-btn" onclick="togglePanel('${prefix}dd')"><i class="ti ti-telescope"></i> Dig deeper</button>
+      <div class="deep-dive-panel" id="${prefix}dd">
+        <div class="section-heading">Deep dive</div>
+        <div class="body-text">${lesson.deepDive.text.replace(/\n/g,'<br>')}</div>
+        ${lesson.deepDive.excel ? lesson.deepDive.excel.map(ex=>`
+          <div class="excel-block">
+            <div class="excel-title"><i class="ti ti-table"></i> Excel: ${ex.title}</div>
+            ${ex.steps.map(s=>`
+              <div class="formula-label">${s.label}</div>
+              <code class="formula">${s.formula.replace(/\n/g,'<br>')}</code>
+            `).join('')}
+            ${ex.note ? `<div class="formula-note">💡 ${ex.note}</div>` : ''}
+          </div>`).join('') : ''}
+      </div>`;
+  }
+  return h;
+}
+
+function renderToday() {
+  const lesson = L.find(l=>l.day===state.curDay) || L[L.length-1];
+  const done = state.completed.includes(lesson.day);
+  let html = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      ${pill(lesson.track)}
+      <span style="font-size:12px;color:var(--text2);margin-left:auto"><i class="ti ti-clock"></i> ${lesson.dur}</span>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Day ${lesson.day} of ${L.length}</div>
+    <div class="lesson-title">${lesson.title}</div>`;
+
+  if(done) {
+    html += `<div class="done-state"><i class="ti ti-circle-check"></i><p>Lesson complete — great work.</p></div>`;
+    if(state.curDay <= L.length) {
+      const next = L.find(l=>l.day===state.curDay);
+      if(next) html += `<div style="border-top:0.5px solid var(--border2);margin-top:12px;padding-top:12px;font-size:13px;color:var(--text2)">Up next: <span style="color:var(--text);font-weight:600">${next.title}</span></div>`;
+    }
+  } else {
+    html += lessonBody(lesson, 'today_');
+    html += `<button class="btn-primary" onclick="markDone(${lesson.day})"><i class="ti ti-check"></i> Mark lesson complete</button>`;
+  }
+  document.getElementById('v-today').innerHTML = html;
+}
+
+// --- CURRICULUM ---
+function renderCurriculum() {
+  const filtered = state.filter==='all' ? L : L.filter(l=>l.track===state.filter);
+  let html = `<div class="filter-row">
+    <button class="chip ${state.filter==='all'?'active':''}" onclick="setFilter('all')">All</button>
+    ${TRACKS.map(t=>`<button class="chip ${state.filter===t.id?'active':''}" onclick="setFilter('${t.id}')" style="${state.filter===t.id?`background:${t.bg};color:${t.color};border-color:${t.color}`:''}"><i class="ti ${t.icon}" style="font-size:11px"></i> ${t.name}</button>`).join('')}
+  </div>`;
+
+  filtered.forEach(lesson => {
+    const done = state.completed.includes(lesson.day);
+    html += `<div class="cur-card">
+      <div class="cur-header" onclick="toggleCur(${lesson.day})">
+        <span class="cur-day-num">D${lesson.day}</span>
+        <span class="cur-title">${lesson.title}</span>
+        ${pill(lesson.track, true)}
+        ${done ? '<i class="ti ti-circle-check" style="color:var(--green);font-size:18px;flex-shrink:0"></i>' : '<i class="ti ti-chevron-down" style="color:var(--text3);font-size:18px;flex-shrink:0"></i>'}
+      </div>
+      <div class="cur-body" id="cb-${lesson.day}">
+        <div style="padding-top:14px">
+          ${lessonBody(lesson,'cur'+lesson.day+'_')}
+          ${!done?`<button class="btn-primary" style="margin-top:14px" onclick="markDone(${lesson.day})"><i class="ti ti-check"></i> Mark complete</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('v-curriculum').innerHTML = html;
+}
+
+function togglePanel(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling;
+  if(btn && el.classList.contains('open')) {
+    if(btn.classList.contains('deep-dive-btn')) btn.innerHTML = '<i class="ti ti-telescope"></i> Close deep dive';
+    if(btn.classList.contains('answer-key-btn')) btn.innerHTML = '<i class="ti ti-eye-off"></i> Hide answer key';
+  } else if(btn) {
+    if(btn.classList.contains('deep-dive-btn')) btn.innerHTML = '<i class="ti ti-telescope"></i> Dig deeper';
+    if(btn.classList.contains('answer-key-btn')) btn.innerHTML = '<i class="ti ti-key"></i> Show answer key';
+  }
+}
+
+function setFilter(id) { state.filter=id; save(); renderCurriculum(); }
+function toggleCur(day) {
+  const el=document.getElementById('cb-'+day);
+  if(!el) return;
+  el.classList.toggle('open');
+}
+
+// --- PROGRESS ---
+function renderProgress() {
+  const total=L.length, done=state.completed.length;
+  const pct=Math.round(done/total*100);
+  const days=['S','M','T','W','T','F','S'];
+  const today=new Date().getDay();
+  let html = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">Complete</div></div>
+      <div class="stat-card"><div class="stat-val">${state.streak}</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-lbl">Overall</div></div>
+    </div>
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600">Overall progress</span>
+        <span style="font-size:13px;color:var(--text2)">${done} / ${total}</span>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:var(--navy)"></div></div>
+      <div class="week-row">${days.map((d,i)=>`<div class="week-cell"><div class="week-lbl">${d}</div><div class="week-dot ${i<done?'done':''} ${i===today?'today':''}">${i<done?'<i class="ti ti-check" style="font-size:11px"></i>':i+1}</div></div>`).join('')}</div>
+    </div>
+    <div class="section-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:14px">By track</div>
+      ${TRACKS.map(tr=>{
+        const lessons=L.filter(l=>l.track===tr.id);
+        const tdone=lessons.filter(l=>state.completed.includes(l.day)).length;
+        const tpct=lessons.length?Math.round(tdone/lessons.length*100):0;
+        return `<div class="track-item">
+          <div class="track-item-header">
+            <span class="track-item-name" style="color:${tr.color}"><i class="ti ${tr.icon}" style="font-size:14px"></i> ${tr.name}</span>
+            <span class="track-item-count">${tdone}/${lessons.length}</span>
+          </div>
+          <div class="pbar-bg"><div class="pbar-fill" style="width:${tpct}%;background:${tr.color}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  document.getElementById('v-progress').innerHTML = html;
+}
+
+// --- GLOSSARY ---
+function renderGlossary(q='') {
+  const terms = q ? GLOSSARY.filter(g=>g.term.toLowerCase().includes(q.toLowerCase())||g.def.toLowerCase().includes(q.toLowerCase())) : GLOSSARY;
+  let html = `<input type="search" class="g-search" placeholder="Search terms..." oninput="renderGlossary(this.value)" value="${q}">`;
+  terms.forEach(g => {
+    const t=tc(g.track);
+    html += `<div class="g-card">
+      <div class="g-term">${g.term}</div>
+      <div class="g-def">${g.def}</div>
+      ${g.formula ? `<code class="g-formula">${g.formula.replace(/\n/g,'<br>')}</code>` : ''}
+      <span class="track-pill" style="background:${t.bg};color:${t.color};font-size:10px;margin-top:6px;display:inline-flex">${t.name}</span>
+    </div>`;
+  });
+  document.getElementById('v-glossary').innerHTML = html;
+}
+
+// --- SETTINGS ---
+function renderSettings() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  let installHint = '';
+  if (!isStandalone) {
+    if (isIOS) installHint = `<div class="install-banner show"><strong>Install this app</strong><br>Tap the share button <i class="ti ti-share"></i> below, then "Add to Home Screen" to install and enable notifications.</div>`;
+    else if (isAndroid) installHint = `<div class="install-banner show"><strong>Install this app</strong><br>Tap the menu <i class="ti ti-dots-vertical"></i> in your browser, then "Add to Home Screen" to install.</div>`;
+  }
+
+  document.getElementById('v-settings').innerHTML = `
+    ${installHint}
+    <div class="setting-row">
+      <div class="setting-item">
+        <div><div class="setting-label">Daily reminder</div><div class="setting-sub">Get notified when it's time to learn</div></div>
+        <button class="toggle ${state.notifOn?'on':''}" id="notif-toggle" onclick="toggleNotif()"></button>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Reminder time</div><div class="setting-sub">Morning window: 7–11 AM</div></div>
+        <select class="time-select" onchange="setTime(this.value)">
+          ${['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00'].map(t=>`<option value="${t}" ${state.notifTime===t?'selected':''}>${fmtTime(t)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-item">
+        <div><div class="setting-label">Current day</div><div class="setting-sub">Day ${state.curDay} of ${L.length}</div></div>
+        <span style="font-size:13px;color:var(--text2)">${state.completed.length} done</span>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Reset progress</div><div class="setting-sub">Start the curriculum over</div></div>
+        <button class="btn-secondary" style="width:auto;padding:7px 14px;margin:0" onclick="resetProgress()">Reset</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;font-size:12px;color:var(--text3);text-align:center;line-height:1.8">
+      Regional Leader Dev Hub · v2.0<br>
+      30–60 min/day · 15 lessons · 8 tracks · Deep dives + Excel<br>
+      <span style="color:var(--text2)">Notifications fire every morning at your chosen time once installed to your home screen. Tap the reminder to open that day's lesson.</span>
+    </div>`;
+}
+
+function fmtTime(t) {
+  const [h,m]=t.split(':');
+  const hr=parseInt(h);
+  return `${hr>12?hr-12:hr===0?12:hr}:${m} ${hr>=12?'PM':'AM'}`;
+}
+
+async function toggleNotif() {
+  if (!state.notifOn) {
+    if (!('Notification' in window)) { alert('Notifications are not supported in this browser. Install the app to your home screen first.'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      state.notifOn = true;
+      scheduleNotification();
+    } else {
+      alert('Notification permission denied. Please enable it in your device settings.');
+      return;
+    }
+  } else {
+    state.notifOn = false;
+  }
+  save();
+  renderSettings();
+}
+
+function setTime(t) { state.notifTime=t; save(); if(state.notifOn) scheduleNotification(); }
+
+function scheduleNotification() {
+  if (!state.notifOn || !('serviceWorker' in navigator)) return;
+  const [h,m] = state.notifTime.split(':');
+  const now = new Date();
+  const target = new Date();
+  target.setHours(parseInt(h), parseInt(m), 0, 0);
+  if (target <= now) target.setDate(target.getDate()+1);
+  const delay = target - now;
+  const lesson = L.find(l=>l.day===state.curDay)||L[0];
+  const t = TRACKS.find(tr=>tr.id===lesson.track)||TRACKS[0];
+  navigator.serviceWorker.ready.then(reg => {
+    if (!reg.active) return;
+    reg.active.postMessage({
+      type:'SCHEDULE_NOTIFICATION',
+      title: `Day ${lesson.day}: ${lesson.title}`,
+      body: `${t.name} · ${lesson.dur}. Open your dev hub to start today\'s lesson.`,
+      delay
+    });
+  });
+}
+
+function msUntilNextAlarm() {
+  const [h,m] = state.notifTime.split(':');
+  const now = new Date();
+  const target = new Date();
+  target.setHours(parseInt(h), parseInt(m), 0, 0);
+  if (target <= now) target.setDate(target.getDate()+1);
+  return target - now;
+}
+
+function resetProgress() {
+  if(confirm('Reset all progress? This cannot be undone.')) {
+    state.completed=[]; state.curDay=1; state.streak=0;
+    save();
+    document.getElementById('streak-num').textContent='0';
+    nav('today', document.querySelector('.nav-item'));
+  }
+}
+
+// --- NAV ---
+function nav(view, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v-'+view).classList.add('active');
+  btn.classList.add('active');
+  if(view==='curriculum') renderCurriculum();
+  else if(view==='progress') renderProgress();
+  else if(view==='glossary') renderGlossary();
+  else if(view==='settings') renderSettings();
+  else renderToday();
+  document.getElementById('content').scrollTop=0;
+}
+
+// --- INIT ---
+document.getElementById('streak-num').textContent = state.streak;
+renderToday();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    if (state.notifOn) scheduleNotification();
+  });
+}
+</script>
+</body>
+</html>
