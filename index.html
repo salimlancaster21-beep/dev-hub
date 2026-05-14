@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dev Hub">
+<meta name="theme-color" content="#1B4F72">
+<title>Regional Leader Dev Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --navy: #1B4F72;
+  --navy-mid: #2E86C1;
+  --navy-light: #D6EAF8;
+  --green: #3B6D11;
+  --green-light: #EAF3DE;
+  --amber: #854F0B;
+  --amber-light: #FAEEDA;
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --pink: #993556;
+  --pink-light: #FBEAF0;
+  --gray: #5F5E5A;
+  --gray-light: #F1EFE8;
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #1a1a1a;
+  --text2: #666;
+  --text3: #999;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.06);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111318;
+    --surface: #1e2026;
+    --text: #f0f0f0;
+    --text2: #aaa;
+    --text3: #666;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.06);
+    --navy-light: #0d2a3e;
+    --green-light: #1a3008;
+    --amber-light: #2e1a02;
+    --purple-light: #1e1a44;
+    --coral-light: #2e1108;
+    --teal-light: #052e24;
+    --pink-light: #2e1020;
+    --gray-light: #1e1d1a;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Layout */
+#app { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+#topbar {
+  background: var(--navy);
+  color: #fff;
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#topbar .title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+#topbar .subtitle { font-size: 12px; opacity: 0.7; margin-top: 1px; }
+#topbar .streak-badge {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--safe-bottom) + 72px);
+}
+
+#navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  padding-bottom: var(--safe-bottom);
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 10px;
+  gap: 3px;
+  transition: color .15s;
+}
+.nav-item i { font-size: 22px; }
+.nav-item.active { color: var(--navy); }
+@media (prefers-color-scheme: dark) { .nav-item.active { color: var(--navy-mid); } }
+
+/* Views */
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+/* Today cards */
+.today-hero {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.track-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.lesson-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.25; margin-bottom: 6px; }
+.lesson-meta { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+
+.section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 18px 0 8px;
+}
+.body-text { font-size: 15px; line-height: 1.7; color: var(--text); }
+.bullet-list { padding-left: 18px; }
+.bullet-list li { font-size: 14px; line-height: 1.75; color: var(--text); margin-bottom: 2px; }
+
+.ex-box {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+  border: 0.5px solid var(--border);
+}
+.scenario-box {
+  background: var(--bg);
+  border-left: 3px solid var(--navy-mid);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+}
+.reflect-box {
+  border-left: 3px solid var(--border);
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 6px;
+  color: var(--text2);
+  font-style: italic;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--navy);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: opacity .15s;
+}
+.btn-primary:active { opacity: 0.85; }
+.btn-primary.done-btn { background: var(--green); }
+.btn-secondary {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  transition: background .15s;
+}
+.btn-secondary:active { background: var(--bg); }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border2);
+  padding: 14px 10px;
+  text-align: center;
+}
+.stat-val { font-size: 26px; font-weight: 700; color: var(--text); }
+.stat-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* Curriculum list */
+.cur-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.cur-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.cur-day-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  min-width: 30px;
+}
+.cur-title { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.3; }
+.cur-body { display: none; padding: 0 16px 16px; border-top: 0.5px solid var(--border2); }
+.cur-body.open { display: block; }
+
+/* Track progress */
+.track-item { margin-bottom: 14px; }
+.track-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.track-item-name { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.track-item-count { font-size: 12px; color: var(--text2); }
+.pbar-bg { background: var(--border2); border-radius: 20px; height: 5px; overflow: hidden; }
+.pbar-fill { height: 5px; border-radius: 20px; transition: width .5s; }
+
+/* Week dots */
+.week-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin: 12px 0 20px; }
+.week-cell { text-align: center; }
+.week-lbl { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.week-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--text2);
+}
+.week-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+.week-dot.today { border-color: var(--navy); color: var(--navy); font-weight: 700; }
+@media (prefers-color-scheme: dark) { .week-dot.today { border-color: var(--navy-mid); color: var(--navy-mid); } }
+
+/* Glossary */
+.g-search {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.g-search::placeholder { color: var(--text3); }
+.g-search:focus { outline: none; border-color: var(--navy-mid); }
+.g-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border2);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.g-term { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.g-def { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* Settings */
+.setting-row {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.setting-item {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--border2);
+}
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 14px; font-weight: 500; }
+.setting-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.toggle {
+  width: 44px; height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+  flex-shrink: 0;
+  border: none;
+}
+.toggle.on { background: var(--green); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(18px); }
+.time-select {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+.install-banner {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  display: none;
+}
+.install-banner.show { display: block; }
+
+/* Filter chips */
+.filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 14px; scrollbar-width: none; }
+.filter-row::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.chip.active { color: var(--text); border-color: var(--text); background: var(--bg); }
+
+/* Completed overlay */
+.done-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 8px;
+  gap: 6px;
+}
+.done-state i { font-size: 36px; color: var(--green); }
+.done-state p { font-size: 14px; color: var(--text2); text-align: center; }
+
+/* Section divider */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div>
+      <div class="title">Dev Hub</div>
+      <div class="subtitle">Regional ops → business stewardship</div>
+    </div>
+    <div class="streak-badge" id="streak-badge"><i class="ti ti-flame"></i> <span id="streak-num">0</span> day streak</div>
+  </div>
+
+  <div id="content">
+    <div class="view active" id="v-today"></div>
+    <div class="view" id="v-curriculum"></div>
+    <div class="view" id="v-progress"></div>
+    <div class="view" id="v-glossary"></div>
+    <div class="view" id="v-settings"></div>
+  </div>
+
+  <nav id="navbar">
+    <button class="nav-item active" onclick="nav('today',this)">
+      <i class="ti ti-player-play"></i><span>Today</span>
+    </button>
+    <button class="nav-item" onclick="nav('curriculum',this)">
+      <i class="ti ti-layout-list"></i><span>Lessons</span>
+    </button>
+    <button class="nav-item" onclick="nav('progress',this)">
+      <i class="ti ti-chart-bar"></i><span>Progress</span>
+    </button>
+    <button class="nav-item" onclick="nav('glossary',this)">
+      <i class="ti ti-book"></i><span>Glossary</span>
+    </button>
+    <button class="nav-item" onclick="nav('settings',this)">
+      <i class="ti ti-settings"></i><span>Settings</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+const TRACKS=[
+  {id:'fin',name:'Financial literacy',color:'#185FA5',bg:'var(--navy-light)',icon:'ti-currency-dollar'},
+  {id:'ops',name:'Operations',color:'#3B6D11',bg:'var(--green-light)',icon:'ti-settings'},
+  {id:'lead',name:'Leadership',color:'#534AB7',bg:'var(--purple-light)',icon:'ti-users'},
+  {id:'fc',name:'Forecasting',color:'#854F0B',bg:'var(--amber-light)',icon:'ti-trending-up'},
+  {id:'cost',name:'Cost management',color:'#993C1D',bg:'var(--coral-light)',icon:'ti-cut'},
+  {id:'xl',name:'Excel',color:'#0F6E56',bg:'var(--teal-light)',icon:'ti-table'},
+  {id:'tab',name:'Tableau',color:'#993556',bg:'var(--pink-light)',icon:'ti-chart-dots'},
+  {id:'bridge',name:'Ops-to-finance',color:'#5F5E5A',bg:'var(--gray-light)',icon:'ti-arrows-exchange'},
+];
+
+const L=[
+  {day:1,track:'fin',dur:'40 min',title:'Reading a P&L as a regional manager',
+   concept:'A P&L is the financial story of your region. Revenue at the top, costs subtracted line by line, profit at the bottom. As a regional ops manager with part-time hourly staff, you directly influence three lines: revenue (service delivery), labor (your biggest variable cost), and gross margin.\n\nMost operators see the P&L after the fact. Your goal is to predict what it will say before finance sends it.',
+   points:['Revenue: total billed for services delivered','COGS: direct delivery costs — primarily hourly labor','Gross profit: Revenue − COGS. Your operational health number','Operating expenses: management overhead, software, equipment','EBITDA: core profitability before accounting adjustments','Net income: the bottom line after everything'],
+   exercise:{type:'Practice problem',text:'Your region billed $142,000 last month. Liaison labor: $68,000. Other direct costs: $11,500. Admin/overhead: $24,000.\n\nCalculate: Gross Profit, Gross Margin %, EBITDA. Then: if you reduced labor 5% through better scheduling, what would gross margin become?'},
+   reflect:'Which line on your P&L do you feel least confident explaining to your VP? That\'s your starting point.',
+   ask:'Walk me through a P&L using real liaison service numbers and show me where I have the most control as a regional manager'},
+
+  {day:2,track:'ops',dur:'35 min',title:'Your operation as a system',
+   concept:'Operations management starts with seeing your work as a system — not a series of tasks. Every system has inputs (what goes in), a process (how work happens), and outputs (what the client experiences).\n\nAs a regional manager, your job is to design and improve the system — not just run inside it.',
+   points:['Inputs: liaison hours, packages received, building access, equipment','Process: arrival scan → PDV → delivery window → door photo','Outputs: on-time rate, accuracy, resident satisfaction','Waste: wrong-door deliveries, missed windows, idle time','Leverage point: the step where fixing something has the biggest downstream impact'],
+   scenario:'Three wrong-door deliveries in one week. Using systems thinking — where did your process break down? Was it an input problem, a process problem, or an output measurement problem?',
+   reflect:'Where in your current process does one breakdown cause the most damage downstream? That\'s your highest-leverage improvement opportunity.',
+   ask:'Help me apply systems thinking to diagnose a recurring delivery problem in my operation'},
+
+  {day:3,track:'lead',dur:'35 min',title:'Managing part-time hourly staff — what actually works',
+   concept:'Part-time hourly workers operate in a fundamentally different psychological contract than salaried employees. Their commitment to quality often reflects how seen, respected, and fairly treated they feel day to day.\n\nThe best regional managers of hourly teams create clarity (people know exactly what good looks like), consistency (the rules are the same every day), and real consequence (feedback actually happens).',
+   points:['Clarity: a liaison who knows exactly what\'s expected performs better than one who guesses','Consistency: inconsistent enforcement destroys trust faster than anything else','Recognition: naming good work costs you nothing and builds loyalty','Accountability: direct, early feedback is kinder than letting issues build','Development: showing someone a path forward increases retention and effort'],
+   reflect:'Think of your highest-performing liaison. What specifically makes them good? Now your lowest. Is the gap skill, will, clarity, or circumstance?',
+   ask:'Help me build a weekly rhythm for developing and holding accountable a team of part-time hourly liaisons'},
+
+  {day:4,track:'fin',dur:'45 min',title:'Variance analysis — explain your numbers before you\'re asked',
+   concept:'Variance is the gap between what you planned and what happened. Finance teams analyze it every month. The regional managers who get promoted are the ones who explain their own variance before anyone asks — and connect it to specific operational decisions.',
+   points:['Favorable: actuals better than budget','Unfavorable: actuals worse than budget','Volume variance: more/fewer hours than planned','Rate variance: hourly rate different than budgeted','How to frame it: "We were $4,200 unfavorable on labor — $3,100 from Saturday coverage, $1,100 from one overtime activation"'],
+   exercise:{type:'Drill',text:'Budget: 800 hours @ $17.50 = $14,000\nActual: 860 hours @ $18.20 = $15,652\nTotal variance: $1,652 unfavorable\n\nSplit it: how much came from extra hours (volume variance)? How much from a higher rate (rate variance)? Then write the sentence you\'d say to your VP.'},
+   ask:'Help me practice explaining labor variance to leadership in plain language'},
+
+  {day:5,track:'xl',dur:'55 min',title:'Excel for regional ops — the 5 functions you actually need',
+   concept:'Before dashboards, before Tableau — Excel is where operational decisions get made and defended. You don\'t need to be an expert. You need to be dangerous with 5 functions that cover 80% of real regional ops work.',
+   points:['SUMIF: total hours by liaison → =SUMIF(A:A,"L2",C:C)','XLOOKUP: pull a liaison\'s rate from a rate table by name','Pivot table: summarize 200 rows of delivery data in seconds','Conditional formatting: automatically flag error rates above your threshold','IFERROR: stop formulas breaking when data is missing'],
+   exercise:{type:'Build it',text:'Open Excel or Google Sheets. Create columns: Date | Liaison | Hours | Packages | Errors. Enter 15 rows of sample data.\n\n(1) SUMIF to total hours per liaison\n(2) Pivot table: packages and errors by liaison\n(3) Conditional formatting: flag any row where Errors > 1 in red\n\nThis is your starter ops tracker.'},
+   ask:'Show me step-by-step how to build a liaison performance tracker in Excel from scratch'},
+
+  {day:6,track:'fc',dur:'40 min',title:'Forecasting volume — your most practical planning tool',
+   concept:'Forecasting isn\'t about being exactly right. It\'s about being directionally right in time to staff correctly, control costs, and hit your margin. The number you most need to forecast is weekly delivery volume — because volume drives staffing, which drives your biggest cost.',
+   points:['Simple average: add last 4 weeks of volume, divide by 4 — your baseline','Trend check: is volume growing, shrinking, or flat?','Seasonality: does volume spike on certain days or months?','Assumption documentation: write down what you assumed so you know why you were wrong','Buffer: build in 10–15% headroom for unplanned volume spikes'],
+   exercise:{type:'Practice problem',text:'Last 6 Mondays: 48, 52, 44, 55, 51, 58\n\n(1) Calculate the 6-week average\n(2) Is there a trend? Which direction?\n(3) Forecast next Monday\n(4) Write one assumption that could be wrong\n(5) What staffing decision does your forecast drive?'},
+   ask:'Help me build a simple weekly volume forecast I can use to make staffing decisions'},
+
+  {day:7,track:'cost',dur:'40 min',title:'Your cost structure — fixed vs. variable',
+   concept:'Every cost is either fixed (doesn\'t change with volume) or variable (scales with delivery). For a liaison service with predominantly part-time hourly staff, most of your cost is variable. That\'s a strength when volume drops — but it means your margin is exposed every time you over-staff a slow day.',
+   points:['Fixed: management salaries, software, equipment leases','Variable: hourly liaison pay, per-delivery supplies','Semi-variable: a part-time coordinator with a minimum guarantee','Contribution margin: Revenue − Variable Costs','Key question: if volume drops 20%, which costs drop with it? Which don\'t?'],
+   exercise:{type:'Build it',text:'List every cost in your region. Label each F (fixed), V (variable), or S (semi-variable). Total each category.\n\nThen: if volume dropped 25% for 3 weeks, what happens to your P&L? How much of your cost base can you flex? What\'s your minimum viable labor floor?'},
+   ask:'Help me calculate my region\'s contribution margin and understand what it means for profitability'},
+
+  {day:8,track:'bridge',dur:'40 min',title:'Every operational decision has a dollar sign',
+   concept:'Business stewardship means you see the financial consequence of operational choices in real time — not at month-end. This isn\'t about being a finance person. It\'s about speaking both languages so you can advocate for your region, defend your decisions, and find savings without being told to.',
+   points:['Over-staffing one day: (extra hours) × (hourly rate) = direct P&L hit','One wrong-door delivery: ~45 min recovery + reputational risk','1 more package/hr per liaison × 3 liaisons × 5 days = material savings','Unplanned overtime: typically 1.5× rate — know your trigger thresholds','Think in cost-per-unit, not just headcount'],
+   scenario:'Friday volume: 31 packages vs. 48 forecasted. All 3 liaisons scheduled. L3 earns $18/hr, has 3.5 hours remaining.\n\nDo you release L3 early? Calculate the savings. What\'s the risk? What\'s your call — and how would you explain it to your VP?',
+   ask:'Help me build the habit of translating daily operational decisions into dollar terms'},
+
+  {day:9,track:'lead',dur:'35 min',title:'Shifting from execution to direction',
+   concept:'The trap for strong operators is staying in execution mode because it feels productive and you\'re good at it. But the higher you go, the more your job becomes creating conditions where others execute well — not doing it yourself.\n\nThis requires getting uncomfortable delegating work you could do faster, and investing in developing your team even when it feels inefficient.',
+   points:['Execution: you do the work','Direction: you define what good looks like and remove obstacles','Development: you grow capability so your region runs without you in the room','The test: if you took 3 days off, what breaks? That\'s what you need to systematize','Stewardship: caring about the long-term health of the operation, not just today\'s numbers'],
+   reflect:'Last 2 weeks: what % of your time was doing tasks vs. directing liaisons vs. developing people vs. thinking strategically? What does that ratio tell you?',
+   ask:'Help me build a 90-day personal transition plan from operational executor to regional business steward'},
+
+  {day:10,track:'fin',dur:'50 min',title:'Labor cost deep dive — your biggest lever',
+   concept:'For a liaison service, labor is typically 55–70% of total costs. That makes it both your biggest expense and your biggest opportunity. Owning your P&L starts with owning your labor number — understanding what drives it and how to communicate changes before they show up on a report.',
+   points:['Total labor cost = hours × blended rate','Blended rate: average hourly cost weighted by hours worked','Overtime exposure: who hits 40 hours and when — track this weekly','Schedule efficiency: productive delivery hours ÷ total paid hours','Labor % of revenue: target typically 45–55% for liaison services'],
+   exercise:{type:'Drill',text:'L1: 28 hrs @ $19.50 | L2: 32 hrs @ $17.00 | L3: 24 hrs @ $18.25\n\n(1) Total weekly labor cost\n(2) Blended hourly rate\n(3) Revenue this week: $8,400 — what is your labor % of revenue?\n(4) Target is 48% — are you over or under? By how many dollars?'},
+   ask:'Help me build a weekly labor tracking habit that keeps me ahead of my P&L'},
+
+  {day:11,track:'xl',dur:'55 min',title:'Building a labor cost model in Excel',
+   concept:'A labor cost model tells you, at any point, what your labor spend is vs. budget — by liaison, by day, by week. It moves you from reacting to variance to predicting it. Properly built, it takes 10 minutes a day to update and saves hours of explanation at month-end.',
+   points:['Structure: one row per liaison per day. Date, name, scheduled hours, actual hours, rate, cost','SUMIF by week: total cost by liaison or week automatically','Budget column + variance column: actual − budget','Conditional formatting: flag days where actual > scheduled by more than 15%','Line chart: actual vs. budget by week — the visual tells the story instantly'],
+   exercise:{type:'Build it',text:'Build a 4-week labor model:\n- 60 rows: L1, L2, L3 × 5 days × 4 weeks\n- Columns: Date | Liaison | Sched Hrs | Actual Hrs | Rate | Actual $ | Budget $ | Variance\n- SUMIF totals by liaison and by week\n- Line chart: actual vs. budget\n\nThis is a real tool you can use starting Monday.'},
+   ask:'Show me exactly how to build a liaison labor cost model in Excel with formulas and a variance chart'},
+
+  {day:12,track:'tab',dur:'55 min',title:'Tableau fundamentals — your first ops dashboard',
+   concept:'Tableau turns your data into interactive visuals that help you and stakeholders understand what\'s happening faster than any spreadsheet. The goal in week one is one working dashboard. For a regional ops manager, the highest-value first dashboard shows volume by day and liaison, error rate trends, and labor vs. budget.',
+   points:['Dimensions: categorical data — liaison name, building, day of week','Measures: numeric data you aggregate — packages, hours, errors','Marks card: controls color, size, labels','Filters: let you and your audience slice the data interactively','Dashboard: combine 2–3 views on one screen with a shared filter'],
+   exercise:{type:'Build it',text:'Download Tableau Public (free). Connect to your Excel ops tracker.\n\nBuild 3 views:\n(1) Bar chart: total packages by liaison this week\n(2) Line chart: daily volume over 4 weeks\n(3) Highlight table: errors by liaison by day\n\nPut all 3 on one dashboard. Add a filter for date range.\nThis is your first real ops dashboard.'},
+   ask:'Walk me through building a regional ops Tableau dashboard step by step from my Excel data'},
+
+  {day:13,track:'fc',dur:'45 min',title:'Staffing to forecast — volume to labor decisions',
+   concept:'Once you can forecast volume, use it to make staffing decisions before the week starts. For a liaison service, the key conversion is packages per liaison-hour. Know that number and you can work backwards from any volume forecast to the hours you need.',
+   points:['Productivity rate: total packages ÷ total liaison hours','Required hours: forecasted volume ÷ productivity rate','Required liaisons: hours needed ÷ shift length','Buffer: add 10–15% for variance, breaks, non-delivery time','Schedule check: compare required to available hours before committing'],
+   exercise:{type:'Practice problem',text:'Productivity rate: 8.5 packages/liaison-hour\nForecast for Monday: 64 packages\nShift length: 5.5 hours\n\n(1) Liaison-hours needed?\n(2) How many liaisons to schedule?\n(3) Add 12% buffer — does your answer change?\n(4) Available: L1 (5.5 hrs), L2 (5 hrs), L3 (4.5 hrs). Are you covered?'},
+   ask:'Help me build a staffing model that converts my weekly volume forecast into a liaison schedule'},
+
+  {day:14,track:'cost',dur:'40 min',title:'Strategic cost management — cut smart, not just cut',
+   concept:'When the directive comes to reduce cost, most operators cut headcount across the board. Strategic cost management means knowing which costs create value and which don\'t — and cutting the ones that don\'t while protecting the ones that do.\n\nA wrong-door delivery looks like a small error. But it costs recovery labor, damages the client relationship, and can jeopardize a contract.',
+   points:['Value-adding costs: everything that directly produces what your client pays for','Non-value-adding: waste, rework, idle time, over-staffing against actual volume','Cost of poor quality: wrong deliveries and missed windows have real dollar values','Cost avoidance vs. reduction: preventing a cost vs. eliminating one that exists','The question: if I cut this, what breaks? If nothing, cut it. If something, quantify the risk first.'],
+   scenario:'Your VP asks for $8,000 in annual savings. Three options:\n(A) Reduce L3 hours by 3/week ($2,808/yr)\n(B) End Saturday afternoon window 90 min early ($3,744/yr)\n(C) 2-liaison model on Tuesdays instead of 2+on-call ($3,120/yr)\n\nWhich do you recommend? What are the risks? How do you present this?',
+   ask:'Help me develop a cost reduction proposal that protects service quality'},
+
+  {day:15,track:'bridge',dur:'45 min',title:'Owning the narrative — presenting your region to leadership',
+   concept:'The difference between a manager who gets resources and one who doesn\'t is usually not performance — it\'s communication. Leadership makes decisions based on the story they hear. If you don\'t tell your region\'s story clearly, someone else tells it through a spreadsheet with no context.',
+   points:['Lead with the headline: revenue, labor %, gross margin','Explain variance before you\'re asked','Connect ops to finance: every operational metric has a dollar translation','Your ask needs a ROI: "Adding 4 hrs of L2 on Thursdays costs $272/week and prevents 2 missed windows"','Weekly brief update beats detailed monthly report nobody reads'],
+   exercise:{type:'Write it',text:'Write a 5-sentence regional update:\n(1) Financial headline: revenue, labor %, gross margin\n(2) Operational headline: on-time %, error rate\n(3) One variance explanation\n(4) One thing you\'re proactively addressing\n(5) One ask with a cost and justification\n\nThis format, done weekly, builds your reputation as someone who runs a business — not just an operation.'},
+   reflect:'Your last leadership update — did you lead with financial outcomes or operational activity? What would it sound like if you led with margin first?',
+   ask:'Help me write a compelling weekly regional update that positions me as a business steward, not just an operator'},
+];
+
+const GLOSSARY=[
+  {term:'P&L (Profit & Loss)',def:'Financial statement showing revenue, costs, and profit over a period. Your primary accountability document.',track:'fin'},
+  {term:'Gross profit',def:'Revenue minus COGS. For a liaison service, COGS is primarily direct labor.',track:'fin'},
+  {term:'Gross margin %',def:'Gross profit ÷ Revenue × 100. Most important indicator of operational efficiency.',track:'fin'},
+  {term:'EBITDA',def:'Earnings Before Interest, Taxes, Depreciation & Amortization. Core operational profitability measure.',track:'fin'},
+  {term:'Variance',def:'Gap between budget and actuals. Favorable = better than plan. Unfavorable = worse.',track:'fin'},
+  {term:'Volume variance',def:'Portion of variance caused by doing more or fewer units than planned.',track:'fin'},
+  {term:'Rate variance',def:'Portion of variance from paying a different rate than budgeted (e.g. unplanned overtime).',track:'fin'},
+  {term:'Blended rate',def:'Weighted average hourly cost across all liaisons by hours worked.',track:'fin'},
+  {term:'Labor % of revenue',def:'Total labor ÷ revenue × 100. Primary labor efficiency metric. Target: 45–55%.',track:'fin'},
+  {term:'Contribution margin',def:'Revenue minus variable costs. What remains to cover fixed costs and generate profit.',track:'cost'},
+  {term:'Fixed cost',def:'Cost that stays constant regardless of volume — management salary, equipment leases.',track:'cost'},
+  {term:'Variable cost',def:'Cost that scales with volume — hourly liaison labor, per-delivery supplies.',track:'cost'},
+  {term:'Cost of poor quality',def:'Dollar cost of errors — recovery labor, client credits, contract risk.',track:'cost'},
+  {term:'KPI',def:'Key Performance Indicator. Small set of metrics that tell you if your operation is healthy.',track:'ops'},
+  {term:'Productivity rate',def:'Packages delivered ÷ liaison-hours worked. Converts volume forecasts into staffing needs.',track:'ops'},
+  {term:'SLA',def:'Service Level Agreement. Contractual commitment to deliver within defined time, accuracy, and quality.',track:'ops'},
+  {term:'Throughput',def:'The rate your operation delivers its output — packages per liaison-hour.',track:'ops'},
+  {term:'Baseline forecast',def:'Starting forecast built by extending historical averages before adjusting for trends.',track:'fc'},
+  {term:'Seasonality',def:'Predictable repeating patterns in volume data — by day, week, or month.',track:'fc'},
+  {term:'Staffing buffer',def:'Extra capacity (10–15%) built into a schedule to absorb forecast error and unplanned volume.',track:'fc'},
+  {term:'SUMIF',def:'Excel function that adds values only where a condition is met. E.g. total hours for L2 only.',track:'xl'},
+  {term:'XLOOKUP',def:'Excel function that finds a value and returns related data from another column.',track:'xl'},
+  {term:'Pivot table',def:'Excel tool that summarizes and groups large datasets without writing formulas.',track:'xl'},
+  {term:'Dimension (Tableau)',def:'Categorical field used to slice data — liaison name, building, day of week.',track:'tab'},
+  {term:'Measure (Tableau)',def:'Numeric field that can be aggregated — package count, labor hours, error rate.',track:'tab'},
+  {term:'Stewardship',def:'Taking long-term responsibility for the health of a business, not just hitting this week\'s numbers.',track:'lead'},
+  {term:'Ops-to-finance bridge',def:'Translating operational decisions and metrics into financial language leadership understands.',track:'bridge'},
+];
+
+// State
+let state = {completed:[], curDay:1, notifOn:false, notifTime:'07:00', streak:0, filter:'all'};
+try { const s=localStorage.getItem('devhub'); if(s) state={...state,...JSON.parse(s)}; } catch(e) {}
+
+function save() { try { localStorage.setItem('devhub', JSON.stringify(state)); } catch(e) {} }
+
+function tc(id) { return TRACKS.find(t=>t.id===id)||TRACKS[0]; }
+
+function pill(trackId, sm) {
+  const t=tc(trackId);
+  return `<span class="track-pill" style="background:${t.bg};color:${t.color};font-size:${sm?'10px':'11px'}">${sm?'':('<i class="ti '+t.icon+'" style="font-size:12px"></i> ')}${t.name}</span>`;
+}
+
+function markDone(day) {
+  if(!state.completed.includes(day)) state.completed.push(day);
+  if(day===state.curDay && state.curDay<L.length) state.curDay++;
+  state.streak = Math.min(state.completed.length, 30);
+  save();
+  document.getElementById('streak-num').textContent = state.streak;
+  renderToday();
+}
+
+// --- TODAY ---
+function renderToday() {
+  const lesson = L.find(l=>l.day===state.curDay) || L[L.length-1];
+  const done = state.completed.includes(lesson.day);
+  const t = tc(lesson.track);
+  let html = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      ${pill(lesson.track)}
+      <span style="font-size:12px;color:var(--text2);margin-left:auto"><i class="ti ti-clock"></i> ${lesson.dur}</span>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Day ${lesson.day} of ${L.length}</div>
+    <div class="lesson-title">${lesson.title}</div>`;
+
+  if(done) {
+    html += `<div class="done-state"><i class="ti ti-circle-check"></i><p>Lesson complete — great work.</p></div>`;
+    if(state.curDay <= L.length) {
+      const next = L.find(l=>l.day===state.curDay);
+      if(next) html += `<div style="border-top:0.5px solid var(--border2);margin-top:12px;padding-top:12px;font-size:13px;color:var(--text2)">Up next: <span style="color:var(--text);font-weight:600">${next.title}</span></div>`;
+    }
+  } else {
+    html += `
+      <div class="section-heading">Concept</div>
+      <div class="body-text">${lesson.concept.replace(/\n/g,'<br><br>')}</div>
+      <div class="section-heading">Key points</div>
+      <ul class="bullet-list">${lesson.points.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+    if(lesson.scenario) html += `<div class="section-heading">Scenario</div><div class="scenario-box">${lesson.scenario}</div>`;
+    if(lesson.exercise) html += `<div class="section-heading">${lesson.exercise.type}</div><div class="ex-box">${lesson.exercise.text}</div>`;
+    if(lesson.reflect) html += `<div class="section-heading">Reflection</div><div class="reflect-box">${lesson.reflect}</div>`;
+    html += `<button class="btn-primary" onclick="markDone(${lesson.day})"><i class="ti ti-check"></i> Mark lesson complete</button>`;
+  }
+  document.getElementById('v-today').innerHTML = html;
+}
+
+// --- CURRICULUM ---
+function renderCurriculum() {
+  const filtered = state.filter==='all' ? L : L.filter(l=>l.track===state.filter);
+  let html = `<div class="filter-row">
+    <button class="chip ${state.filter==='all'?'active':''}" onclick="setFilter('all')">All</button>
+    ${TRACKS.map(t=>`<button class="chip ${state.filter===t.id?'active':''}" onclick="setFilter('${t.id}')" style="${state.filter===t.id?`background:${t.bg};color:${t.color};border-color:${t.color}`:''}"><i class="ti ${t.icon}" style="font-size:11px"></i> ${t.name}</button>`).join('')}
+  </div>`;
+
+  filtered.forEach(lesson => {
+    const done = state.completed.includes(lesson.day);
+    html += `<div class="cur-card">
+      <div class="cur-header" onclick="toggleCur(${lesson.day})">
+        <span class="cur-day-num">D${lesson.day}</span>
+        <span class="cur-title">${lesson.title}</span>
+        ${pill(lesson.track, true)}
+        ${done ? '<i class="ti ti-circle-check" style="color:var(--green);font-size:18px;flex-shrink:0"></i>' : '<i class="ti ti-chevron-down" style="color:var(--text3);font-size:18px;flex-shrink:0"></i>'}
+      </div>
+      <div class="cur-body" id="cb-${lesson.day}">
+        <div style="padding-top:14px">
+          <div class="section-heading">Concept</div>
+          <div class="body-text">${lesson.concept.replace(/\n/g,'<br><br>')}</div>
+          <div class="section-heading">Key points</div>
+          <ul class="bullet-list">${lesson.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+          ${lesson.scenario?`<div class="section-heading">Scenario</div><div class="scenario-box">${lesson.scenario}</div>`:''}
+          ${lesson.exercise?`<div class="section-heading">${lesson.exercise.type}</div><div class="ex-box">${lesson.exercise.text}</div>`:''}
+          ${lesson.reflect?`<div class="section-heading">Reflection</div><div class="reflect-box">${lesson.reflect}</div>`:''}
+          ${!done?`<button class="btn-primary" style="margin-top:14px" onclick="markDone(${lesson.day})"><i class="ti ti-check"></i> Mark complete</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('v-curriculum').innerHTML = html;
+}
+
+function setFilter(id) { state.filter=id; save(); renderCurriculum(); }
+function toggleCur(day) {
+  const el=document.getElementById('cb-'+day);
+  if(!el) return;
+  el.classList.toggle('open');
+}
+
+// --- PROGRESS ---
+function renderProgress() {
+  const total=L.length, done=state.completed.length;
+  const pct=Math.round(done/total*100);
+  const days=['S','M','T','W','T','F','S'];
+  const today=new Date().getDay();
+  let html = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">${done}</div><div class="stat-lbl">Complete</div></div>
+      <div class="stat-card"><div class="stat-val">${state.streak}</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-card"><div class="stat-val">${pct}%</div><div class="stat-lbl">Overall</div></div>
+    </div>
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600">Overall progress</span>
+        <span style="font-size:13px;color:var(--text2)">${done} / ${total}</span>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:var(--navy)"></div></div>
+      <div class="week-row">${days.map((d,i)=>`<div class="week-cell"><div class="week-lbl">${d}</div><div class="week-dot ${i<done?'done':''} ${i===today?'today':''}">${i<done?'<i class="ti ti-check" style="font-size:11px"></i>':i+1}</div></div>`).join('')}</div>
+    </div>
+    <div class="section-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:14px">By track</div>
+      ${TRACKS.map(tr=>{
+        const lessons=L.filter(l=>l.track===tr.id);
+        const tdone=lessons.filter(l=>state.completed.includes(l.day)).length;
+        const tpct=lessons.length?Math.round(tdone/lessons.length*100):0;
+        return `<div class="track-item">
+          <div class="track-item-header">
+            <span class="track-item-name" style="color:${tr.color}"><i class="ti ${tr.icon}" style="font-size:14px"></i> ${tr.name}</span>
+            <span class="track-item-count">${tdone}/${lessons.length}</span>
+          </div>
+          <div class="pbar-bg"><div class="pbar-fill" style="width:${tpct}%;background:${tr.color}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  document.getElementById('v-progress').innerHTML = html;
+}
+
+// --- GLOSSARY ---
+function renderGlossary(q='') {
+  const terms = q ? GLOSSARY.filter(g=>g.term.toLowerCase().includes(q.toLowerCase())||g.def.toLowerCase().includes(q.toLowerCase())) : GLOSSARY;
+  let html = `<input type="search" class="g-search" placeholder="Search terms..." oninput="renderGlossary(this.value)" value="${q}">`;
+  terms.forEach(g => {
+    const t=tc(g.track);
+    html += `<div class="g-card">
+      <div class="g-term">${g.term}</div>
+      <div class="g-def">${g.def}</div>
+      <span class="track-pill" style="background:${t.bg};color:${t.color};font-size:10px;margin-top:6px;display:inline-flex">${t.name}</span>
+    </div>`;
+  });
+  document.getElementById('v-glossary').innerHTML = html;
+}
+
+// --- SETTINGS ---
+function renderSettings() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  let installHint = '';
+  if (!isStandalone) {
+    if (isIOS) installHint = `<div class="install-banner show"><strong>Install this app</strong><br>Tap the share button <i class="ti ti-share"></i> below, then "Add to Home Screen" to install and enable notifications.</div>`;
+    else if (isAndroid) installHint = `<div class="install-banner show"><strong>Install this app</strong><br>Tap the menu <i class="ti ti-dots-vertical"></i> in your browser, then "Add to Home Screen" to install.</div>`;
+  }
+
+  document.getElementById('v-settings').innerHTML = `
+    ${installHint}
+    <div class="setting-row">
+      <div class="setting-item">
+        <div><div class="setting-label">Daily reminder</div><div class="setting-sub">Get notified when it's time to learn</div></div>
+        <button class="toggle ${state.notifOn?'on':''}" id="notif-toggle" onclick="toggleNotif()"></button>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Reminder time</div><div class="setting-sub">Morning window: 7–11 AM</div></div>
+        <select class="time-select" onchange="setTime(this.value)">
+          ${['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00'].map(t=>`<option value="${t}" ${state.notifTime===t?'selected':''}>${fmtTime(t)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-item">
+        <div><div class="setting-label">Current day</div><div class="setting-sub">Day ${state.curDay} of ${L.length}</div></div>
+        <span style="font-size:13px;color:var(--text2)">${state.completed.length} done</span>
+      </div>
+      <div class="setting-item">
+        <div><div class="setting-label">Reset progress</div><div class="setting-sub">Start the curriculum over</div></div>
+        <button class="btn-secondary" style="width:auto;padding:7px 14px;margin:0" onclick="resetProgress()">Reset</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;font-size:12px;color:var(--text3);text-align:center;line-height:1.8">
+      Regional Leader Dev Hub · v1.0<br>
+      30–60 min/day · 15 lessons · 8 tracks<br>
+      <span style="color:var(--text2)">Notifications fire every morning at your chosen time once installed to your home screen. Tap the reminder to open that day's lesson.</span>
+    </div>`;
+}
+
+function fmtTime(t) {
+  const [h,m]=t.split(':');
+  const hr=parseInt(h);
+  return `${hr>12?hr-12:hr===0?12:hr}:${m} ${hr>=12?'PM':'AM'}`;
+}
+
+async function toggleNotif() {
+  if (!state.notifOn) {
+    if (!('Notification' in window)) { alert('Notifications are not supported in this browser. Install the app to your home screen first.'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      state.notifOn = true;
+      scheduleNotification();
+    } else {
+      alert('Notification permission denied. Please enable it in your device settings.');
+      return;
+    }
+  } else {
+    state.notifOn = false;
+  }
+  save();
+  renderSettings();
+}
+
+function setTime(t) { state.notifTime=t; save(); if(state.notifOn) scheduleNotification(); }
+
+function scheduleNotification() {
+  if (!state.notifOn || !('serviceWorker' in navigator)) return;
+  const [h,m] = state.notifTime.split(':');
+  const now = new Date();
+  const target = new Date();
+  target.setHours(parseInt(h), parseInt(m), 0, 0);
+  if (target <= now) target.setDate(target.getDate()+1);
+  const delay = target - now;
+  const lesson = L.find(l=>l.day===state.curDay)||L[0];
+  const t = TRACKS.find(tr=>tr.id===lesson.track)||TRACKS[0];
+  navigator.serviceWorker.ready.then(reg => {
+    if (!reg.active) return;
+    reg.active.postMessage({
+      type:'SCHEDULE_NOTIFICATION',
+      title: `Day ${lesson.day}: ${lesson.title}`,
+      body: `${t.name} · ${lesson.dur}. Open your dev hub to start today\'s lesson.`,
+      delay
+    });
+  });
+}
+
+function msUntilNextAlarm() {
+  const [h,m] = state.notifTime.split(':');
+  const now = new Date();
+  const target = new Date();
+  target.setHours(parseInt(h), parseInt(m), 0, 0);
+  if (target <= now) target.setDate(target.getDate()+1);
+  return target - now;
+}
+
+function resetProgress() {
+  if(confirm('Reset all progress? This cannot be undone.')) {
+    state.completed=[]; state.curDay=1; state.streak=0;
+    save();
+    document.getElementById('streak-num').textContent='0';
+    nav('today', document.querySelector('.nav-item'));
+  }
+}
+
+// --- NAV ---
+function nav(view, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v-'+view).classList.add('active');
+  btn.classList.add('active');
+  if(view==='curriculum') renderCurriculum();
+  else if(view==='progress') renderProgress();
+  else if(view==='glossary') renderGlossary();
+  else if(view==='settings') renderSettings();
+  else renderToday();
+  document.getElementById('content').scrollTop=0;
+}
+
+// --- INIT ---
+document.getElementById('streak-num').textContent = state.streak;
+renderToday();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    if (state.notifOn) scheduleNotification();
+  });
+}
+</script>
+</body>
+</html>
